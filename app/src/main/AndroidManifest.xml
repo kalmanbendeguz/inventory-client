@@ -3,6 +3,7 @@
     package="kb.inventory">
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="true"
@@ -10,10 +11,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Inventory">
+        android:theme="@style/Theme.Inventory"
+        android:usesCleartextTraffic="true">
         <activity android:name=".CheckItemActivity"></activity>
         <activity android:name=".TakeOutItemActivity" />
-        <activity android:name=".InsertItemActivity" />
+        <activity
+            android:name=".InsertItemActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">

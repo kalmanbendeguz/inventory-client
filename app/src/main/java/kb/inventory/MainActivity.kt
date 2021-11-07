@@ -90,14 +90,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //Log.v("mylog", intentResult.contents)
         if(intentResult.contents != null){
             /*var alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
-            alertDialogBuilder.setTitle("Sikerült :)")
-            alertDialogBuilder.setMessage(intentResult.contents)
-            //alertDialogBuilder.setPositiveButton("OK", DialogInterface.OnClickListener())
+            alertDialogBuilder.setTitle("Sikerült :)")*/
+            Log.v("mylog", intentResult.contents)
+            /*alertDialogBuilder.setPositiveButton("OK", DialogInterface.OnClickListener())
             alertDialogBuilder.show()*/
             when(lastPressedButton){
                 "insertButton" -> {
                     val intent = Intent(this, InsertItemActivity::class.java).apply {
-                        //putExtra(EXTRA_MESSAGE, message)
+                        putExtra("itemCode", intentResult.contents )
                     }
                     startActivity(intent)
                 }
