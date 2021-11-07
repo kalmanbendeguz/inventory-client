@@ -4,28 +4,25 @@
     tools:showIn="navigation_view">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_profile"
-            android:icon="@drawable/ic_launcher_background"
-            android:title="My Profile" />
+            android:id="@+id/nav_landing"
+            android:icon="@drawable/ic_landing"
+            android:title="Főoldal" />
         <item
-            android:id="@+id/nav_orders"
-            android:icon="@drawable/ic_launcher_background"
-            android:title="My Orders" />
+            android:id="@+id/nav_all_items"
+            android:icon="@drawable/ic_all_items"
+            android:title="Összes termék" />
         <item
-            android:id="@+id/nav_about_us"
-            android:icon="@mipmap/ic_launcher"
-            android:title="About Us" />
+            android:id="@+id/nav_categories"
+            android:icon="@drawable/ic_categories"
+            android:title="Kategóriák" />
         <item
-            android:id="@+id/nav_terms_and_conditions"
-            android:icon="@drawable/ic_launcher_background"
-            android:title="Terms &amp; Conditions" />
+            android:id="@+id/nav_stats"
+            android:icon="@drawable/ic_stats"
+            android:title="Statisztikák" />
         <item
-            android:id="@+id/nav_share"
-            android:icon="@drawable/ic_launcher_background"
-            android:title="Share" />
-        <item
-            android:id="@+id/nav_log_out"
-            android:icon="@drawable/ic_launcher_background"
-            android:title="Logout" />
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="Beállítások" />
+
     </group>
 </menu>

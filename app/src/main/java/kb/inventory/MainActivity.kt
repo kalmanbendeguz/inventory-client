@@ -123,23 +123,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
-            R.id.nav_profile -> {
+            R.id.nav_landing -> {
                 Toast.makeText(this, "Profile clicked", Toast.LENGTH_SHORT).show()
             }
-            R.id.nav_orders -> {
+            R.id.nav_all_items -> {
                 Toast.makeText(this, "Orders clicked", Toast.LENGTH_SHORT).show()
             }
-            R.id.nav_about_us -> {
+            R.id.nav_categories -> {
                 Toast.makeText(this, "About us clicked", Toast.LENGTH_SHORT).show()
             }
-            R.id.nav_terms_and_conditions -> {
+            R.id.nav_stats -> {
                 Toast.makeText(this, "Terms and conditions clicked", Toast.LENGTH_SHORT).show()
             }
-            R.id.nav_share -> {
+            R.id.nav_settings -> {
                 Toast.makeText(this, "Share clicked", Toast.LENGTH_SHORT).show()
-            }
-            R.id.nav_log_out -> {
-                Toast.makeText(this, "Logout clicked", Toast.LENGTH_SHORT).show()
             }
         }
         drawerLayout.closeDrawer(GravityCompat.START)
