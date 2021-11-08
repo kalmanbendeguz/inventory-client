@@ -18,6 +18,8 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.material.navigation.NavigationView
+import com.google.gson.Gson
+import com.google.gson.JsonArray
 import org.json.JSONArray
 import org.json.JSONObject
 import java.nio.charset.Charset
@@ -86,6 +88,88 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         // Add the request to the RequestQueue.
         mQueue.add(jsonObjectRequest)
+    }
+
+    private fun insertNew() {
+        val insertNewItemView: View = LayoutInflater
+            .from(this)
+            .inflate(R.layout.content_insert_new_item, rootLinearLayout, false)
+        rootLinearLayout.addView(insertNewItemView)
+
+        val toolbarLabel : TextView = findViewById(R.id.toolbarLabel)
+        toolbarLabel.text = "Új tétel"
+
+        val cancelButton: Button = findViewById(R.id.btnCancel)
+        cancelButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                //putExtra("itemCode", intentResult.contents )
+            }
+            startActivity(intent)
+        }
+
+        val okButton: Button = findViewById(R.id.btnOk)
+
+        val tvCode : TextView = findViewById(R.id.tvCode)
+        tvCode.text = itemCode
+
+        val tvExistingQuantity : TextView = findViewById(R.id.tvExistingQuantity)
+        tvExistingQuantity.text = "0"
+
+        val tvName : TextView = findViewById(R.id.etName)
+        tvName.text = itemCode
+
+        okButton.setOnClickListener {
+            val quantityEditText : EditText = findViewById(R.id.etInsertQuantity)
+            if(quantityEditText.text.isEmpty()){
+                Toast.makeText(this, "Add meg a mennyiséget!", Toast.LENGTH_SHORT).show()
+            } else {
+                val queue = Volley.newRequestQueue(this)
+                val url = "http://192.168.0.114:3000/item/insert_new"
+
+                val nameEditText: EditText = findViewById(R.id.etName)
+                val categoryEditText: EditText = findViewById(R.id.etCategory)
+
+                val reqMap: MutableMap<Any?, Any?> = mutableMapOf()
+                reqMap["code"] = itemCode
+                reqMap["name"] = nameEditText.text.toString()
+                var categoryArray: List<String> = categoryEditText.text.toString().split("/").map { it.trim() }
+                categoryArray = categoryArray.filter{!it.isEmpty()}
+                reqMap["quantity"] = quantityEditText.text.toString().toInt()
+                if(!categoryArray.isEmpty()){
+                    reqMap["category"] = categoryArray
+                } else {
+                    reqMap["category"] = "[]"
+                }
+
+
+                val reqBody : JSONObject = JSONObject(reqMap)
+                Log.v("mylog", reqBody.toString())
+                val stringReq : StringRequest =
+                    object : StringRequest(Method.POST, url,
+                        Response.Listener { response ->
+                            // response
+                            var strResp = response.toString()
+                            Log.v("mylog", "RESP:" +"["+strResp+"]")
+                            Log.d("API", strResp)
+                            Toast.makeText(this, "Sikeres bevitel", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this, MainActivity::class.java).apply {
+                                //putExtra("itemCode", intentResult.contents )
+                            }
+                            startActivity(intent)
+                        },
+                        Response.ErrorListener { error ->
+                            Log.d("API", "error => $error")
+                        }
+                    ){
+                        override fun getBody(): ByteArray {
+                            return reqBody.toString().toByteArray()
+                        }
+                    }
+                queue.add(stringReq)
+
+            }
+
+        }
     }
 
     private fun insertExisting() {
@@ -169,12 +253,6 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
     }
 
-    private fun insertNew() {
-        val insertNewItemView: View = LayoutInflater
-            .from(this)
-            .inflate(R.layout.content_insert_new_item, this.drawerLayout, false)
-        drawerLayout.addView(insertNewItemView)
-    }
 
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
