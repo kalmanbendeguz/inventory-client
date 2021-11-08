@@ -22,7 +22,8 @@ import com.google.android.material.navigation.NavigationView
 import org.json.JSONArray
 import org.json.JSONObject
 
-class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
     lateinit var toolbar: Toolbar
     lateinit var drawerLayout: DrawerLayout
     lateinit var rootLinearLayout: LinearLayout
@@ -31,13 +32,12 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     lateinit var scanResult: JSONObject
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.v("mylog","activity indul")
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_check_item)
+        setContentView(R.layout.activity_view_item)
 
         Log.v("mylog","oncreate1")
         toolbar = findViewById(R.id.toolbar)
-        rootLinearLayout = findViewById(R.id.checkItemLinearLayout)
+        rootLinearLayout = findViewById(R.id.viewItemLinearLayout)
         setSupportActionBar(toolbar)
 
         Log.v("mylog","oncreate2")
@@ -68,20 +68,8 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             null,
             { response ->
                 //textView.text = "Response: %s".format(response.toString())
-                Log.v("mylog", "RESPONSE")
-                Log.v("mylog", response.toString())
-                if (response.toString() == "{}") {
-                    Log.v("mylog", "insertNew")
-                    checkNotExisting()
-                } else {
-                    Log.v("mylog", "insertExisting")
-                    scanResult = response
-                    Log.v("mylog", "insertExisting1")
-
-                    checkExisting()
-
-
-                }
+                scanResult = response
+                viewItem()
             },
             { error ->
                 // TODO: Handle error
@@ -92,41 +80,20 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         mQueue.add(jsonObjectRequest)
     }
 
-    private fun checkExisting() {
-        Log.v("mylog", "checkExisting ")
+    private fun viewItem() {
+        Log.v("mylog", "viewItem")
 
-        val checkExistingView: View = LayoutInflater
+        val viewItemView: View = LayoutInflater
             .from(this)
-            .inflate(R.layout.content_check_item_existing, rootLinearLayout, false)
-        rootLinearLayout.addView(checkExistingView)
+            .inflate(R.layout.content_view_item, rootLinearLayout, false)
+        rootLinearLayout.addView(viewItemView)
 
-
-        val okButton: Button = findViewById(R.id.btnOk)
-        okButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                //putExtra("itemCode", intentResult.contents )
-            }
-            startActivity(intent)
-        }
-
-        val datasheetButton: Button = findViewById(R.id.btnDatasheet)
-        datasheetButton.setOnClickListener {
-            val intent = Intent(this, ViewItemActivity::class.java).apply {
-                putExtra("itemCode", itemCode )
-            }
-            startActivity(intent)
-        }
-
-
-
-        val tvCode : TextView = findViewById(R.id.tvCode)
-        tvCode.text = scanResult.getString("code")
-
-        val tvExistingQuantity : TextView = findViewById(R.id.tvExistingQuantity)
-        tvExistingQuantity.text = scanResult.getString("quantity")
 
         val tvName : TextView = findViewById(R.id.tvName)
         tvName.text = scanResult.getString("name")
+
+        val tvCode : TextView = findViewById(R.id.tvCode)
+        tvCode.text = scanResult.getString("code")
 
         val categoryArray : JSONArray = scanResult.getJSONArray("categoryStringArray")
         val tvCategory : TextView = findViewById(R.id.tvCategory)
@@ -137,28 +104,17 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         if(categoryArray.length() == 0) {
             tvCategory.append(" / ")
         }
+
+        val tvQuantity : TextView = findViewById(R.id.tvQuantity)
+        tvQuantity.text = scanResult.getString("quantity")
+        Log.v("mylog", "viewItem1")
+        val tvLastChanged : TextView = findViewById(R.id.tvLastChanged)
+        Log.v("mylog", "viewItem3")
+        //Log.v("mylog", scanResult.toString())
+        tvLastChanged.text = scanResult.getString("lastChanged")
+        Log.v("mylog", "viewItem2")
+
     }
-
-    private fun checkNotExisting() {
-        val checkNonExistingItem: View = LayoutInflater
-            .from(this)
-            .inflate(R.layout.content_check_item_not_existing, rootLinearLayout, false)
-        rootLinearLayout.addView(checkNonExistingItem)
-
-
-        val okButton: Button = findViewById(R.id.btnOk)
-        okButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                //putExtra("itemCode", intentResult.contents )
-            }
-            startActivity(intent)
-        }
-
-
-        val tvCode : TextView = findViewById(R.id.tvCode)
-        tvCode.text = itemCode
-    }
-
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
