@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 "takeOutButton" -> {
                     val intent = Intent(this, TakeOutItemActivity::class.java).apply {
-                        //putExtra(EXTRA_MESSAGE, message)
+                        putExtra("itemCode", intentResult.contents )
                     }
                     startActivity(intent)
                 }

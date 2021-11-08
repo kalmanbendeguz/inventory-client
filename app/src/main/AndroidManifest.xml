@@ -14,7 +14,9 @@
         android:theme="@style/Theme.Inventory"
         android:usesCleartextTraffic="true">
         <activity android:name=".CheckItemActivity"></activity>
-        <activity android:name=".TakeOutItemActivity" />
+        <activity
+            android:name=".TakeOutItemActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".InsertItemActivity"
             android:theme="@style/AppTheme.NoActionBar"/>

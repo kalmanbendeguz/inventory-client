@@ -65,7 +65,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             Request.Method.GET,
             url,
             null,
-            Response.Listener { response ->
+            { response ->
                 //textView.text = "Response: %s".format(response.toString())
                 Log.v("mylog", "RESPONSE")
                 Log.v("mylog", response.toString())
@@ -81,7 +81,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
                 }
             },
-            Response.ErrorListener { error ->
+            { error ->
                 // TODO: Handle error
             }
         )
