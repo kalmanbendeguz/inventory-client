@@ -1,21 +1,18 @@
 package kb.inventory
 
-import android.content.ClipData
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.android.volley.Request
-import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
@@ -23,10 +20,12 @@ import com.android.volley.toolbox.Volley
 import com.google.android.material.navigation.NavigationView
 import org.json.JSONArray
 import org.json.JSONObject
+import java.nio.charset.Charset
 
 class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     lateinit var toolbar: Toolbar
     lateinit var drawerLayout: DrawerLayout
+    lateinit var rootLinearLayout: LinearLayout
     lateinit var navView: NavigationView
     lateinit var itemCode: String
     lateinit var scanResult: JSONObject
@@ -37,7 +36,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         setContentView(R.layout.activity_insert_item)
         Log.v("mylog", "oc1")
         toolbar = findViewById(R.id.toolbar)
-
+        rootLinearLayout = findViewById(R.id.insertItemLinearLayout)
         setSupportActionBar(toolbar)
 
         drawerLayout = findViewById(R.id.drawer_layout)
@@ -68,7 +67,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 //textView.text = "Response: %s".format(response.toString())
                 Log.v("mylog", "RESPONSE")
                 Log.v("mylog", response.toString())
-                if(response.toString() == "{}") {
+                if (response.toString() == "{}") {
                     Log.v("mylog", "insertNew")
                     insertNew()
                 } else {
@@ -92,20 +91,80 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     private fun insertExisting() {
         val insertExistingItemView: View = LayoutInflater
             .from(this)
-            .inflate(R.layout.content_insert_existing_item, drawerLayout, false)
-        drawerLayout.addView(insertExistingItemView)
+            .inflate(R.layout.content_insert_existing_item, rootLinearLayout, false)
+        rootLinearLayout.addView(insertExistingItemView)
+
+
+        val cancelButton: Button = findViewById(R.id.btnCancel)
+        cancelButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                //putExtra("itemCode", intentResult.contents )
+            }
+            startActivity(intent)
+        }
+
         Log.v("mylog", "there")
 
-        val button: Button = findViewById(R.id.btnOk)
+        val okButton: Button = findViewById(R.id.btnOk)
 
-        button.setOnClickListener {
-            Log.v("mylog", "clicked")
-            // Do something in response to button click
-            val text = "Hello toast!"
-            val duration = Toast.LENGTH_SHORT
+        val tvCode : TextView = findViewById(R.id.tvCode)
+        tvCode.text = scanResult.getString("code")
 
-            val toast = Toast.makeText(this, text, duration)
-            toast.show()
+        val tvExistingQuantity : TextView = findViewById(R.id.tvExistingQuantity)
+        tvExistingQuantity.text = scanResult.getString("quantity")
+
+        val tvName : TextView = findViewById(R.id.tvName)
+        tvName.text = scanResult.getString("name")
+
+        val categoryArray : JSONArray = scanResult.getJSONArray("categoryStringArray")
+        val tvCategory :  TextView = findViewById(R.id.tvCategory)
+        for (i in 0 until categoryArray.length()){
+
+            tvCategory.append(" / "+categoryArray[i].toString())
+        }
+
+        okButton.setOnClickListener {
+            val quantityEditText : EditText = findViewById(R.id.etInsertQuantity)
+            if(quantityEditText.text.isEmpty()){
+                Toast.makeText(this, "Add meg a mennyiséget!", Toast.LENGTH_SHORT).show()
+            } else {
+                val queue = Volley.newRequestQueue(this)
+                val url = "http://192.168.0.114:3000/item/insert_existing"
+
+                //val requestBody = "code="+ itemCode + "&quantity="
+                val reqMap: MutableMap<Any?, Any?> = mutableMapOf()
+                reqMap["code"] = itemCode
+                reqMap["quantity"] = quantityEditText.text.toString().toInt()
+                val reqBody : JSONObject = JSONObject(reqMap)
+
+                Log.v("mylog", reqBody.toString())
+                Log.v("mylog", reqBody.toString().toByteArray(Charset.defaultCharset()).toString())
+
+                val stringReq : StringRequest =
+                    object : StringRequest(Method.POST, url,
+                        Response.Listener { response ->
+                            // response
+                            var strResp = response.toString()
+                            Log.v("mylog", "RESP:" +"["+strResp+"]")
+                            Log.d("API", strResp)
+                            Toast.makeText(this, "Sikeres bevitel", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this, MainActivity::class.java).apply {
+                                //putExtra("itemCode", intentResult.contents )
+                            }
+                            startActivity(intent)
+                        },
+                        Response.ErrorListener { error ->
+                            Log.d("API", "error => $error")
+                        }
+                    ){
+                        override fun getBody(): ByteArray {
+                            return reqBody.toString().toByteArray(Charset.defaultCharset())
+                        }
+                    }
+                queue.add(stringReq)
+
+            }
+
         }
 
     }
