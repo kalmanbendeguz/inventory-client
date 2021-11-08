@@ -226,7 +226,27 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
     }
 
     private fun takeOutNonExisting() {
-        TODO("Not yet implemented")
+        Log.v("mylog", "takeout NON Existing")
+
+        val takeOutNonExistingItem: View = LayoutInflater
+            .from(this)
+            .inflate(R.layout.content_take_out_not_existing_item, rootLinearLayout, false)
+        rootLinearLayout.addView(takeOutNonExistingItem)
+
+
+        val okButton: Button = findViewById(R.id.btnOk)
+        okButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                //putExtra("itemCode", intentResult.contents )
+            }
+            startActivity(intent)
+        }
+
+
+
+        val tvCode : TextView = findViewById(R.id.tvCode)
+        tvCode.text = itemCode
+
     }
 
 

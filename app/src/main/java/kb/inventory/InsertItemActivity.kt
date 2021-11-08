@@ -206,6 +206,9 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
             tvCategory.append(" / "+categoryArray[i].toString())
         }
+        if(categoryArray.length() == 0) {
+            tvCategory.append(" / ")
+        }
 
         okButton.setOnClickListener {
             val quantityEditText : EditText = findViewById(R.id.etInsertQuantity)
