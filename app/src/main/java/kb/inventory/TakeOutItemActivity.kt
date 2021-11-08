@@ -187,6 +187,42 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
 
     private fun takeOutExistingZeroCount() {
         Log.v("mylog", "takeoutExisting zero count")
+
+        val takeOutExistingItemNIs0View: View = LayoutInflater
+            .from(this)
+            .inflate(R.layout.content_take_out_existing_item_n_is_0, rootLinearLayout, false)
+        rootLinearLayout.addView(takeOutExistingItemNIs0View)
+
+
+        val okButton: Button = findViewById(R.id.btnOk)
+        okButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                //putExtra("itemCode", intentResult.contents )
+            }
+            startActivity(intent)
+        }
+
+
+
+        val tvCode : TextView = findViewById(R.id.tvCode)
+        tvCode.text = scanResult.getString("code")
+
+        val tvExistingQuantity : TextView = findViewById(R.id.tvExistingQuantity)
+        tvExistingQuantity.text = scanResult.getString("quantity")
+
+        val tvName : TextView = findViewById(R.id.tvName)
+        tvName.text = scanResult.getString("name")
+
+        val categoryArray : JSONArray = scanResult.getJSONArray("categoryStringArray")
+        val tvCategory : TextView = findViewById(R.id.tvCategory)
+        for (i in 0 until categoryArray.length()){
+
+            tvCategory.append(" / "+categoryArray[i].toString())
+        }
+        if(categoryArray.length() == 0) {
+            tvCategory.append(" / ")
+        }
+
     }
 
     private fun takeOutNonExisting() {
