@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 "checkButton" -> {
                     val intent = Intent(this, CheckItemActivity::class.java).apply {
-                        //putExtra(EXTRA_MESSAGE, message)
+                        putExtra("itemCode", intentResult.contents )
                     }
                     startActivity(intent)
                 }
