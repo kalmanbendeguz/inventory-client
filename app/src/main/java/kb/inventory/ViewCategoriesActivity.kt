@@ -67,8 +67,11 @@ class ViewCategoriesActivity : AppCompatActivity(), NavigationView.OnNavigationI
         if(currentCategoryCode.isEmpty()){
             url = "http://192.168.137.1:3000/category/get_subcategories"
         }
-
+        //url = "http://192.168.137.1:3000/category/get_subcategories?parent_category=6179e29491f511fe16bb19e5"
+        Log.v("mylog", "oncreate before extract")
         extractCategories()
+
+
     }
 
     private fun extractCategories() {
@@ -82,7 +85,12 @@ class ViewCategoriesActivity : AppCompatActivity(), NavigationView.OnNavigationI
 
                     val categoryObject: JSONObject = response.getJSONObject(i)
 
-                    val categoryName: String = categoryObject.getString("name")
+                    var categoryName: String = categoryObject.getString("name")
+                    Log.v("mylog", "respons")
+                    var categoryCode: String = categoryObject.getString("_id")
+
+                    Log.v("mylog", "categoryCode")
+                    Log.v("mylog", categoryObject.toString())
                     //val itemQuantity: Int = itemObject.getInt("quantity")
 
                     //val itemCategoryList: MutableList<String> = mutableListOf()
@@ -90,7 +98,7 @@ class ViewCategoriesActivity : AppCompatActivity(), NavigationView.OnNavigationI
                     //val itemCategoryArray: JSONArray = itemObject.getJSONArray("categoryStringArray")
 
 
-                    var category: Category = Category(categoryName)
+                    var category: Category = Category(categoryName, categoryCode)
                     categoriesList.add(category)
                     adapter.notifyDataSetChanged()
 

@@ -1,13 +1,15 @@
 package kb.inventory.adapter
 
-import android.content.ClipData
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import kb.inventory.R
+import kb.inventory.ViewCategoriesActivity
 import kb.inventory.data.Category
+
 
 class CategoryAdapter(var categories: MutableList<Category>):
     RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
@@ -27,6 +29,13 @@ class CategoryAdapter(var categories: MutableList<Category>):
         holder.tvSubcategoryName.text = category.name
 
         holder.category = category
+
+        holder.itemView.setOnClickListener(View.OnClickListener { v ->
+            val intent = Intent(v.context, ViewCategoriesActivity::class.java).apply{
+                putExtra("category_code", holder.category?.code )
+            }
+            v.context.startActivity(intent)
+        })
     }
 
     override fun getItemCount(): Int {
