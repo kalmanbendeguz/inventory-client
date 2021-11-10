@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -56,7 +57,14 @@ class ViewCategoriesActivity : AppCompatActivity(), NavigationView.OnNavigationI
 
         categoriesList = mutableListOf()
 
-        adapter = CategoryAdapter(categoriesList)
+        var tvParentCategory: TextView = findViewById(R.id.tvParentCategory)
+        if(intent.getStringExtra("category_path")!!.isEmpty()) {
+            tvParentCategory.text = "/"
+        } else {
+            tvParentCategory.text = intent.getStringExtra("category_path")!!
+        }
+
+        adapter = CategoryAdapter(categoriesList, intent.getStringExtra("category_path")!!)
         Log.v("mylog", "viewcategories")
         recyclerView = findViewById(R.id.categoriesList)
         recyclerView.layoutManager = LinearLayoutManager(this)
