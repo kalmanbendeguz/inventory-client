@@ -8,7 +8,24 @@
     tools:context=".ViewCategoriesActivity"
     android:id="@+id/content_view_categories">
 
+    <TextView
+        android:id="@+id/tvParentCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="10dp"
+        android:textSize="22sp"
+        android:text="/"/>
 
-
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/categoriesList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvParentCategory"
+        app:layout_constrainedHeight="true"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

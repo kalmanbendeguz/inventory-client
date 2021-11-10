@@ -131,7 +131,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(intent)
             }
             R.id.nav_categories -> {
-                val intent = Intent(this, ViewCategoriesActivity::class.java).apply {}
+                val intent = Intent(this, ViewCategoriesActivity::class.java).apply {
+                    putExtra("category_code", "" )
+                }
                 startActivity(intent)
             }
             R.id.nav_stats -> {
