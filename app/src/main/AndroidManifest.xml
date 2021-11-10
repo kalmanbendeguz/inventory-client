@@ -14,8 +14,20 @@
         android:theme="@style/Theme.Inventory"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".ViewItemActivity"
+            android:name=".SettingsActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".StatsActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".ViewCategoriesActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".ViewAllItemsActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ViewItemActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".CheckItemActivity"
             android:theme="@style/AppTheme.NoActionBar" />
