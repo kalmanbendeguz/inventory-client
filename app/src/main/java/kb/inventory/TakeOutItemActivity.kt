@@ -57,7 +57,7 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
 
         // Instantiate the RequestQueue.
         val mQueue = Volley.newRequestQueue(this)
-        val url = "http://192.168.0.114:3000/item/info?code=$itemCode"
+        val url = "http://192.168.137.1:3000/item/info?code=$itemCode"
 
         // Request a string response from the provided URL.
         val jsonObjectRequest = JsonObjectRequest(
@@ -141,7 +141,7 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                 Toast.makeText(this, "Add meg a mennyiséget!", Toast.LENGTH_SHORT).show()
             } else {
                 val queue = Volley.newRequestQueue(this)
-                val url = "http://192.168.0.114:3000/item/take_out"
+                val url = "http://192.168.137.1:3000/item/take_out"
 
                 //val requestBody = "code="+ itemCode + "&quantity="
                 val reqMap: MutableMap<Any?, Any?> = mutableMapOf()

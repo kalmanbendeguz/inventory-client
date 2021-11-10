@@ -58,7 +58,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         // Instantiate the RequestQueue.
         val mQueue = Volley.newRequestQueue(this)
-        val url = "http://192.168.0.114:3000/item/info?code=$itemCode"
+        val url = "http://192.168.137.1:3000/item/info?code=$itemCode"
 
         // Request a string response from the provided URL.
         val jsonObjectRequest = JsonObjectRequest(
@@ -124,7 +124,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 Toast.makeText(this, "Add meg a mennyiséget!", Toast.LENGTH_SHORT).show()
             } else {
                 val queue = Volley.newRequestQueue(this)
-                val url = "http://192.168.0.114:3000/item/insert_new"
+                val url = "http://192.168.137.1:3000/item/insert_new"
 
                 val nameEditText: EditText = findViewById(R.id.etName)
                 val categoryEditText: EditText = findViewById(R.id.etCategory)
@@ -216,7 +216,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 Toast.makeText(this, "Add meg a mennyiséget!", Toast.LENGTH_SHORT).show()
             } else {
                 val queue = Volley.newRequestQueue(this)
-                val url = "http://192.168.0.114:3000/item/insert_existing"
+                val url = "http://192.168.137.1:3000/item/insert_existing"
 
                 //val requestBody = "code="+ itemCode + "&quantity="
                 val reqMap: MutableMap<Any?, Any?> = mutableMapOf()
