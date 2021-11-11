@@ -1,10 +1,12 @@
 package kb.inventory
 
+import android.app.DatePickerDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
@@ -14,6 +16,7 @@ import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.material.navigation.NavigationView
+import java.util.*
 
 class StatsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -66,6 +69,31 @@ class StatsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
         // Add the request to the RequestQueue.
         mQueue.add(jsonObjectRequest)
+
+        val c = Calendar.getInstance()
+        var year = c.get(Calendar.YEAR)
+        var month = c.get(Calendar.MONTH)
+        var day = c.get(Calendar.DAY_OF_MONTH)
+
+        val btnStartDate : Button = findViewById(R.id.btnPickStartDate)
+        val tvStartDate : TextView = findViewById(R.id.tvStartDate)
+        btnStartDate.setOnClickListener {
+            val startDatePickerDialog = DatePickerDialog(this, DatePickerDialog.OnDateSetListener{view, sYear, sMonth, sDay ->
+                tvStartDate.text = "$sYear/$sMonth/$sDay"
+            }, year, month, day)
+
+            startDatePickerDialog.show()
+        }
+
+        val btnEndDate : Button = findViewById(R.id.btnPickEndDate)
+        val tvEndDate : TextView = findViewById(R.id.tvEndDate)
+        btnEndDate.setOnClickListener {
+            val endDatePickerDialog = DatePickerDialog(this, DatePickerDialog.OnDateSetListener{view, sYear, sMonth, sDay ->
+                tvEndDate.text = "$sYear/$sMonth/$sDay"
+            }, year, month, day)
+
+            endDatePickerDialog.show()
+        }
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
