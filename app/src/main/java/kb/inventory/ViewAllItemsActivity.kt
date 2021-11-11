@@ -3,9 +3,13 @@ package kb.inventory
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.MenuItem
+import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -13,14 +17,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.RequestQueue
+import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kb.inventory.adapter.CategoryAdapter
 import kb.inventory.adapter.ItemAdapter
 import kb.inventory.data.Category
 import kb.inventory.data.Item
 import org.json.JSONObject
+import java.nio.charset.Charset
 
 class ViewAllItemsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -64,6 +72,34 @@ class ViewAllItemsActivity : AppCompatActivity(), NavigationView.OnNavigationIte
         url = "http://192.168.137.1:3000/item/get_all"
 
         extractItems()
+
+        val fab : FloatingActionButton = findViewById(R.id.fabSearch)
+        fab.setOnClickListener {
+            val searchItemDialog = AlertDialog.Builder(this@ViewAllItemsActivity)
+            searchItemDialog.setTitle("Keresés:")
+
+            val searchInput = EditText(this@ViewAllItemsActivity)
+            searchInput.inputType = InputType.TYPE_CLASS_TEXT
+
+            searchItemDialog.setView(searchInput)
+
+            searchItemDialog.setPositiveButton("OK") { dialogInterface, i ->
+                val search = searchInput.text.toString()
+
+                if(search.isEmpty()) {
+                    Toast.makeText(this@ViewAllItemsActivity, "Nem lehet üres!", Toast.LENGTH_SHORT).show()
+                } else {
+                    adapter.items = itemsList.filter {
+                        it.name == search
+                    } as MutableList<Item>
+                    adapter.notifyDataSetChanged()
+                }
+            }
+
+            searchItemDialog.setNegativeButton("Mégse") { dialogInterface, i -> dialogInterface.cancel() }
+            searchItemDialog.show()
+
+        }
     }
 
     private fun extractItems() {
