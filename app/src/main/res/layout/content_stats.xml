@@ -8,7 +8,115 @@
     tools:context=".StatsActivity"
     android:id="@+id/content_stats">
 
+    <TextView
+        android:id="@+id/tvItemCountLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:layout_marginStart="10dp"
+        android:textSize="20sp"
+        android:text="Összes tétel száma:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/tvItemCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:textSize="20sp"
+        android:text=""
+        app:layout_constraintStart_toEndOf="@id/tvItemCountLabel"
+        app:layout_constraintTop_toTopOf="@id/tvItemCountLabel"
+        app:layout_constraintBottom_toBottomOf="@id/tvItemCountLabel"/>
+
+    <TextView
+        android:id="@+id/tvItemDiversityLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:layout_marginStart="10dp"
+        android:textSize="20sp"
+        android:text="Tételfajták száma:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvItemCountLabel" />
+
+    <TextView
+        android:id="@+id/tvItemDiversity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:textSize="20sp"
+        android:text=""
+        app:layout_constraintStart_toEndOf="@id/tvItemDiversityLabel"
+        app:layout_constraintTop_toTopOf="@id/tvItemDiversityLabel"
+        app:layout_constraintBottom_toBottomOf="@id/tvItemDiversityLabel"/>
+
+    <TextView
+        android:id="@+id/tvStartDateLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="10dp"
+        android:textSize="18sp"
+        android:text="Kezdő dátum:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvItemDiversityLabel" />
+
+    <Button
+        android:id="@+id/btnPickStartDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:textSize="18sp"
+        android:text="Kiválasztás"
+        app:layout_constraintStart_toEndOf="@id/tvStartDateLabel"
+        app:layout_constraintTop_toTopOf="@id/tvStartDateLabel"
+        app:layout_constraintBottom_toBottomOf="@id/tvStartDateLabel"/>
+
+    <TextView
+        android:id="@+id/tvStartDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="30dp"
+        android:textSize="18sp"
+        android:text="MMMM.HH.DD."
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvStartDateLabel" />
+
+    <TextView
+        android:id="@+id/tvEndDateLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="10dp"
+        android:textSize="18sp"
+        android:text="Záró dátum:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvStartDate" />
+
+    <Button
+        android:id="@+id/btnPickEndDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:textSize="18sp"
+        android:text="Kiválasztás"
+        app:layout_constraintStart_toEndOf="@id/tvEndDateLabel"
+        app:layout_constraintTop_toTopOf="@id/tvEndDateLabel"
+        app:layout_constraintBottom_toBottomOf="@id/tvEndDateLabel"/>
+
+    <TextView
+        android:id="@+id/tvEndDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="30dp"
+        android:textSize="18sp"
+        android:text="MMMM.HH.DD."
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvEndDateLabel" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,11 +3,16 @@ package kb.inventory
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.google.android.material.navigation.NavigationView
 
 class StatsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -32,6 +37,35 @@ class StatsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         navView.setNavigationItemSelectedListener(this)
+
+        val mQueue = Volley.newRequestQueue(this)
+        val url = "http://192.168.137.1:3000/stats"
+
+        // Request a string response from the provided URL.
+        val jsonObjectRequest = JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                { response ->
+                    //textView.text = "Response: %s".format(response.toString())
+                    Log.v("mylog", "RESPONSE")
+                    Log.v("mylog", response.toString())
+                    val itemCount = response.getInt("allItemCount")
+                    val itemDiversity = response.getInt("itemDiversity")
+
+                    val tvItemCount : TextView = findViewById(R.id.tvItemCount)
+                    tvItemCount.text = itemCount.toString()
+
+                    val tvItemDiversity : TextView = findViewById(R.id.tvItemDiversity)
+                    tvItemDiversity.text = itemDiversity.toString()
+                },
+                { error ->
+                    // TODO: Handle error
+                }
+        )
+
+        // Add the request to the RequestQueue.
+        mQueue.add(jsonObjectRequest)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
