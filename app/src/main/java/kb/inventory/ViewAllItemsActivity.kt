@@ -7,6 +7,7 @@ import android.text.InputType
 import android.util.Log
 import android.view.MenuItem
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -28,6 +29,7 @@ import kb.inventory.adapter.ItemAdapter
 import kb.inventory.data.Category
 import kb.inventory.data.Item
 import org.json.JSONObject
+import java.lang.Exception
 import java.nio.charset.Charset
 
 class ViewAllItemsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -69,7 +71,18 @@ class ViewAllItemsActivity : AppCompatActivity(), NavigationView.OnNavigationIte
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
+
+
         url = "http://192.168.137.1:3000/item/get_all"
+
+        try {
+            val categoryID: String = intent.getStringExtra("category_id")!!
+            url = "http://192.168.137.1:3000/item/get_all_of_subcategory?category_id=$categoryID"
+            val tvToolbarLabel : TextView = findViewById(R.id.toolbarLabel)
+            tvToolbarLabel.text = "Kategórián belüli tételek"
+        } catch (e : Exception){
+            url = "http://192.168.137.1:3000/item/get_all"
+        }
 
         extractItems()
 
@@ -114,7 +127,7 @@ class ViewAllItemsActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                     for (i in 0 until response.length()){
 
                         val itemObject: JSONObject = response.getJSONObject(i)
-                        Log.v("mylog", "respons")
+                        Log.v("mylog", "respon1s")
                         Log.v("mylog", itemObject.toString())
                         var itemName: String = itemObject.getString("name")
                         var itemCode: String = itemObject.getString("code")

@@ -14,6 +14,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import kb.inventory.R
+import kb.inventory.ViewAllItemsActivity
 import kb.inventory.ViewCategoriesActivity
 import kb.inventory.data.Category
 import org.json.JSONObject
@@ -43,6 +44,15 @@ class CategoryAdapter(var categories: MutableList<Category>, var categoryPath: S
             val intent = Intent(v.context, ViewCategoriesActivity::class.java).apply{
                 putExtra("category_code", holder.category?.code )
                 putExtra("category_path", categoryPath + "/" +holder.category?.name)
+            }
+            v.context.startActivity(intent)
+        })
+
+        holder.btnViewCategoryItems.setOnClickListener (View.OnClickListener{ v ->
+            val intent = Intent(v.context, ViewAllItemsActivity::class.java).apply{
+                Log.v("mylog","holder category code")
+                Log.v("mylog",holder.category?.code!!)
+                putExtra("category_id", holder.category?.code )
             }
             v.context.startActivity(intent)
         })
