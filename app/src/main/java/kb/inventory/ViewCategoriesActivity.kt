@@ -1,7 +1,9 @@
 package kb.inventory
 
 import android.content.ClipData
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
@@ -45,12 +47,18 @@ class ViewCategoriesActivity : AppCompatActivity(), NavigationView.OnNavigationI
 
     lateinit var currentCategoryCode: String
     lateinit var url: String
+    lateinit var sharedPref: SharedPreferences
+    lateinit var currentServerIP: String
+    lateinit var currentPort: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.v("mylog", "viewcategories oncreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_categories)
+        sharedPref = getSharedPreferences("kb.inventory.settings", Context.MODE_PRIVATE)
 
+        currentServerIP = sharedPref.getString("server_ip", "0.0.0.0")!!
+        currentPort = sharedPref.getInt("server_port", 3000).toString()
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -80,11 +88,11 @@ class ViewCategoriesActivity : AppCompatActivity(), NavigationView.OnNavigationI
         recyclerView.adapter = adapter
 
         currentCategoryCode = intent.getStringExtra("category_code")!!
-        url = "http://192.168.137.1:3000/category/get_subcategories?parent_category=$currentCategoryCode"
+        url = "http://$currentServerIP:$currentPort/category/get_subcategories?parent_category=$currentCategoryCode"
         if(currentCategoryCode.isEmpty()){
-            url = "http://192.168.137.1:3000/category/get_subcategories"
+            url = "http://$currentServerIP:$currentPort/category/get_subcategories"
         }
-        //url = "http://192.168.137.1:3000/category/get_subcategories?parent_category=6179e29491f511fe16bb19e5"
+        //url = "http://$currentServerIP:$currentPort/category/get_subcategories?parent_category=6179e29491f511fe16bb19e5"
         Log.v("mylog", "oncreate before extract")
         extractCategories()
 
@@ -105,7 +113,7 @@ class ViewCategoriesActivity : AppCompatActivity(), NavigationView.OnNavigationI
                     Toast.makeText(this@ViewCategoriesActivity, "Nem lehet üres a kategórianév!", Toast.LENGTH_SHORT).show()
                 } else {
                     val queue = Volley.newRequestQueue(this)
-                    val url = "http://192.168.137.1:3000/category/new"
+                    val url = "http://$currentServerIP:$currentPort/category/new"
 
                     //val requestBody = "code="+ itemCode + "&quantity="
                     val reqMap: MutableMap<Any?, Any?> = mutableMapOf()

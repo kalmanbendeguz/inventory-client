@@ -1,6 +1,7 @@
 package kb.inventory.adapter
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
@@ -23,6 +24,7 @@ import kb.inventory.data.Item
 class ItemAdapter(var items: MutableList<Item>):
         RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
+    lateinit var sharedPref: SharedPreferences
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val itemView: View = LayoutInflater

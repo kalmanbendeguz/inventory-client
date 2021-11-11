@@ -1,6 +1,8 @@
 package kb.inventory
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -31,11 +33,18 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     lateinit var navView: NavigationView
     lateinit var itemCode: String
     lateinit var scanResult: JSONObject
+    lateinit var sharedPref: SharedPreferences
+    lateinit var currentServerIP: String
+    lateinit var currentPort: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.v("mylog", "oc1")
         setContentView(R.layout.activity_insert_item)
+        sharedPref = getSharedPreferences("kb.inventory.settings", Context.MODE_PRIVATE)
+
+        currentServerIP = sharedPref.getString("server_ip", "0.0.0.0")!!
+        currentPort = sharedPref.getInt("server_port", 3000).toString()
         Log.v("mylog", "oc1")
         toolbar = findViewById(R.id.toolbar)
         rootLinearLayout = findViewById(R.id.insertItemLinearLayout)
@@ -58,7 +67,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         // Instantiate the RequestQueue.
         val mQueue = Volley.newRequestQueue(this)
-        val url = "http://192.168.137.1:3000/item/info?code=$itemCode"
+        val url = "http://$currentServerIP:$currentPort/item/info?code=$itemCode"
 
         // Request a string response from the provided URL.
         val jsonObjectRequest = JsonObjectRequest(
@@ -124,7 +133,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 Toast.makeText(this, "Add meg a mennyiséget!", Toast.LENGTH_SHORT).show()
             } else {
                 val queue = Volley.newRequestQueue(this)
-                val url = "http://192.168.137.1:3000/item/insert_new"
+                val url = "http://$currentServerIP:$currentPort/item/insert_new"
 
                 val nameEditText: EditText = findViewById(R.id.etName)
                 val categoryEditText: EditText = findViewById(R.id.etCategory)
@@ -216,7 +225,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 Toast.makeText(this, "Add meg a mennyiséget!", Toast.LENGTH_SHORT).show()
             } else {
                 val queue = Volley.newRequestQueue(this)
-                val url = "http://192.168.137.1:3000/item/insert_existing"
+                val url = "http://$currentServerIP:$currentPort/item/insert_existing"
 
                 //val requestBody = "code="+ itemCode + "&quantity="
                 val reqMap: MutableMap<Any?, Any?> = mutableMapOf()

@@ -2,6 +2,7 @@ package kb.inventory.adapter
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
@@ -24,7 +25,7 @@ import java.nio.charset.Charset
 class CategoryAdapter(var categories: MutableList<Category>, var categoryPath: String):
     RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
 
-    //private val categories = mutableListOf<Category>()
+    lateinit var sharedPref: SharedPreferences
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val itemView: View = LayoutInflater
@@ -34,6 +35,9 @@ class CategoryAdapter(var categories: MutableList<Category>, var categoryPath: S
     }
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
+
+
+
         val category = categories[position]
 
         holder.tvSubcategoryName.text = category.name
@@ -58,6 +62,11 @@ class CategoryAdapter(var categories: MutableList<Category>, var categoryPath: S
         })
 
         holder.btnRenameCategory.setOnClickListener(View.OnClickListener { v ->
+            sharedPref = v.context.getSharedPreferences("kb.inventory.settings", Context.MODE_PRIVATE)
+
+            val currentServerIP = sharedPref.getString("server_ip", "0.0.0.0")
+            val currentPort = sharedPref.getInt("server_port", 3000).toString()
+
             val renameCategoryDialog = AlertDialog.Builder(v.context)
             renameCategoryDialog.setTitle("Kategória átnevezése")
 
@@ -77,7 +86,7 @@ class CategoryAdapter(var categories: MutableList<Category>, var categoryPath: S
                     Toast.makeText(v.context, "Nem változott!", Toast.LENGTH_SHORT).show()
                 } else {
                     val queue = Volley.newRequestQueue(v.context)
-                    val url = "http://192.168.137.1:3000/category/rename"
+                    val url = "http://$currentServerIP:$currentPort/category/rename"
 
                     //val requestBody = "code="+ itemCode + "&quantity="
                     val reqMap: MutableMap<Any?, Any?> = mutableMapOf()

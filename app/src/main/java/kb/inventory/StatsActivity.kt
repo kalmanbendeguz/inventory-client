@@ -1,7 +1,9 @@
 package kb.inventory
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color.blue
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -37,12 +39,18 @@ class StatsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     lateinit var drawerLayout: DrawerLayout
     lateinit var navView: NavigationView
     lateinit var scanResult: JSONObject
+    lateinit var sharedPref: SharedPreferences
+    lateinit var currentServerIP: String
+    lateinit var currentPort: String
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stats)
+        sharedPref = getSharedPreferences("kb.inventory.settings", Context.MODE_PRIVATE)
 
+        currentServerIP = sharedPref.getString("server_ip", "0.0.0.0")!!
+        currentPort = sharedPref.getInt("server_port", 3000).toString()
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -57,7 +65,7 @@ class StatsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         navView.setNavigationItemSelectedListener(this)
 
         val mQueue = Volley.newRequestQueue(this)
-        val url = "http://192.168.137.1:3000/stats"
+        val url = "http://$currentServerIP:$currentPort/stats"
 
         // Request a string response from the provided URL.
         val jsonObjectRequest = JsonObjectRequest(

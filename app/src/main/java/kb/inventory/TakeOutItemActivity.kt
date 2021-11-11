@@ -1,6 +1,8 @@
 package kb.inventory
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -30,12 +32,18 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
     lateinit var navView: NavigationView
     lateinit var itemCode: String
     lateinit var scanResult: JSONObject
+    lateinit var sharedPref: SharedPreferences
+    lateinit var currentServerIP: String
+    lateinit var currentPort: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.v("mylog","activity indul")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_take_out_item)
+        sharedPref = getSharedPreferences("kb.inventory.settings", Context.MODE_PRIVATE)
 
+        currentServerIP = sharedPref.getString("server_ip", "0.0.0.0")!!
+        currentPort = sharedPref.getInt("server_port", 3000).toString()
         toolbar = findViewById(R.id.toolbar)
         rootLinearLayout = findViewById(R.id.takeOutItemLinearLayout)
         setSupportActionBar(toolbar)
@@ -57,7 +65,7 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
 
         // Instantiate the RequestQueue.
         val mQueue = Volley.newRequestQueue(this)
-        val url = "http://192.168.137.1:3000/item/info?code=$itemCode"
+        val url = "http://$currentServerIP:$currentPort/item/info?code=$itemCode"
 
         // Request a string response from the provided URL.
         val jsonObjectRequest = JsonObjectRequest(
@@ -141,7 +149,7 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                 Toast.makeText(this, "Add meg a mennyiséget!", Toast.LENGTH_SHORT).show()
             } else {
                 val queue = Volley.newRequestQueue(this)
-                val url = "http://192.168.137.1:3000/item/take_out"
+                val url = "http://$currentServerIP:$currentPort/item/take_out"
 
                 //val requestBody = "code="+ itemCode + "&quantity="
                 val reqMap: MutableMap<Any?, Any?> = mutableMapOf()

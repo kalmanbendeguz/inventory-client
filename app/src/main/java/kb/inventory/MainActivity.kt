@@ -1,7 +1,9 @@
 package kb.inventory
 
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -26,11 +28,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var drawerLayout: DrawerLayout
     lateinit var navView: NavigationView
     var lastPressedButton: String = "none"
+    lateinit var sharedPref: SharedPreferences
+    lateinit var currentServerIP: String
+    lateinit var currentPort: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        sharedPref = getSharedPreferences("kb.inventory.settings", Context.MODE_PRIVATE)
 
+        currentServerIP = sharedPref.getString("server_ip", "0.0.0.0")!!
+        currentPort = sharedPref.getInt("server_port", 3000).toString()
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 

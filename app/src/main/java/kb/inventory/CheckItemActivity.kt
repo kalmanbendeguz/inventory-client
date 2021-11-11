@@ -1,6 +1,8 @@
 package kb.inventory
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -29,11 +31,19 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     lateinit var navView: NavigationView
     lateinit var itemCode: String
     lateinit var scanResult: JSONObject
+    lateinit var sharedPref: SharedPreferences
+    lateinit var currentServerIP: String
+    lateinit var currentPort: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.v("mylog","activity indul")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_check_item)
+
+        sharedPref = getSharedPreferences("kb.inventory.settings", Context.MODE_PRIVATE)
+
+        currentServerIP = sharedPref.getString("server_ip", "0.0.0.0")!!
+        currentPort = sharedPref.getInt("server_port", 3000).toString()
 
         Log.v("mylog","oncreate1")
         toolbar = findViewById(R.id.toolbar)
@@ -59,7 +69,7 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
         // Instantiate the RequestQueue.
         val mQueue = Volley.newRequestQueue(this)
-        val url = "http://192.168.137.1:3000/item/info?code=$itemCode"
+        val url = "http://$currentServerIP:$currentPort/item/info?code=$itemCode"
 
         // Request a string response from the provided URL.
         val jsonObjectRequest = JsonObjectRequest(

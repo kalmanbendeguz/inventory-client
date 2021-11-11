@@ -1,6 +1,8 @@
 package kb.inventory
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
@@ -43,12 +45,19 @@ class ViewAllItemsActivity : AppCompatActivity(), NavigationView.OnNavigationIte
     lateinit var adapter: ItemAdapter
 
     lateinit var url: String
+    lateinit var sharedPref: SharedPreferences
+    lateinit var currentServerIP: String
+    lateinit var currentPort: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_all_items)
         Log.v("mylog", "via1")
+        sharedPref = getSharedPreferences("kb.inventory.settings", Context.MODE_PRIVATE)
+
+        currentServerIP = sharedPref.getString("server_ip", "0.0.0.0")!!
+        currentPort = sharedPref.getInt("server_port", 3000).toString()
         toolbar = findViewById(R.id.toolbar)
 
         setSupportActionBar(toolbar)
@@ -73,15 +82,15 @@ class ViewAllItemsActivity : AppCompatActivity(), NavigationView.OnNavigationIte
 
 
 
-        url = "http://192.168.137.1:3000/item/get_all"
+        url = "http://$currentServerIP:$currentPort/item/get_all"
 
         try {
             val categoryID: String = intent.getStringExtra("category_id")!!
-            url = "http://192.168.137.1:3000/item/get_all_of_subcategory?category_id=$categoryID"
+            url = "http://$currentServerIP:$currentPort/item/get_all_of_subcategory?category_id=$categoryID"
             val tvToolbarLabel : TextView = findViewById(R.id.toolbarLabel)
             tvToolbarLabel.text = "Kategórián belüli tételek"
         } catch (e : Exception){
-            url = "http://192.168.137.1:3000/item/get_all"
+            url = "http://$currentServerIP:$currentPort/item/get_all"
         }
 
         extractItems()
