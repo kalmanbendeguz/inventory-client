@@ -2,12 +2,15 @@ package kb.inventory
 
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.graphics.Color.blue
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -15,7 +18,17 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.Description
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.material.navigation.NavigationView
+import com.google.gson.JsonObject
+import org.json.JSONObject
+import java.security.KeyStore
+import java.time.Instant
+import java.time.ZonedDateTime
 import java.util.*
 
 class StatsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -23,7 +36,9 @@ class StatsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     lateinit var toolbar: Toolbar
     lateinit var drawerLayout: DrawerLayout
     lateinit var navView: NavigationView
+    lateinit var scanResult: JSONObject
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stats)
@@ -53,6 +68,7 @@ class StatsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     //textView.text = "Response: %s".format(response.toString())
                     Log.v("mylog", "RESPONSE")
                     Log.v("mylog", response.toString())
+                    scanResult = response
                     val itemCount = response.getInt("allItemCount")
                     val itemDiversity = response.getInt("itemDiversity")
 
@@ -61,6 +77,7 @@ class StatsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
                     val tvItemDiversity : TextView = findViewById(R.id.tvItemDiversity)
                     tvItemDiversity.text = itemDiversity.toString()
+                    setLineChartData()
                 },
                 { error ->
                     // TODO: Handle error
@@ -70,30 +87,40 @@ class StatsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         // Add the request to the RequestQueue.
         mQueue.add(jsonObjectRequest)
 
-        val c = Calendar.getInstance()
-        var year = c.get(Calendar.YEAR)
-        var month = c.get(Calendar.MONTH)
-        var day = c.get(Calendar.DAY_OF_MONTH)
 
-        val btnStartDate : Button = findViewById(R.id.btnPickStartDate)
-        val tvStartDate : TextView = findViewById(R.id.tvStartDate)
-        btnStartDate.setOnClickListener {
-            val startDatePickerDialog = DatePickerDialog(this, DatePickerDialog.OnDateSetListener{view, sYear, sMonth, sDay ->
-                tvStartDate.text = "$sYear/$sMonth/$sDay"
-            }, year, month, day)
+    }
 
-            startDatePickerDialog.show()
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setLineChartData(){
+        val lineEntry = ArrayList<Entry>()
+
+        val dataPoints = scanResult.getJSONArray("changes")
+
+        for(i in 0 until dataPoints.length()){
+            val dataPoint : JSONObject = dataPoints.get(i) as JSONObject
+            val updatedAt: String = dataPoint.getString("updatedAt")
+            var updatedDate: Date = Calendar.getInstance().time
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                updatedDate = Date.from(Instant.parse(updatedAt))
+            } else {
+                Log.v("mylog", "BAD API LEVEL")
+            }
+            val quantity: Int = dataPoint.getInt("quantity")
+            lineEntry.add(Entry(updatedDate.toInstant().toEpochMilli().toFloat(),quantity.toFloat()))
         }
 
-        val btnEndDate : Button = findViewById(R.id.btnPickEndDate)
-        val tvEndDate : TextView = findViewById(R.id.tvEndDate)
-        btnEndDate.setOnClickListener {
-            val endDatePickerDialog = DatePickerDialog(this, DatePickerDialog.OnDateSetListener{view, sYear, sMonth, sDay ->
-                tvEndDate.text = "$sYear/$sMonth/$sDay"
-            }, year, month, day)
-
-            endDatePickerDialog.show()
-        }
+        val lineDataset: LineDataSet = LineDataSet(lineEntry, "Összes tétel száma")
+        lineDataset.color = resources.getColor(R.color.blue)
+        lineDataset.setDrawCircles(false)
+        lineDataset.setDrawValues(false)
+        lineDataset.lineWidth = 1.5F
+        val data = LineData(lineDataset)
+        val lineChart: LineChart = findViewById(R.id.lineChart)
+        lineChart.data = data
+        lineChart.setBackgroundColor(resources.getColor(R.color.white))
+        lineChart.animateXY(200,200)
+        lineChart.description.text = ""
+        lineChart.xAxis.textColor = resources.getColor(R.color.white)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
