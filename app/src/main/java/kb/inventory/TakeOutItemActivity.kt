@@ -261,7 +261,10 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                 startActivity(intent)
             }
             R.id.nav_categories -> {
-                val intent = Intent(this, ViewCategoriesActivity::class.java).apply {}
+                val intent = Intent(this, ViewCategoriesActivity::class.java).apply {
+                    putExtra("category_code", "" )
+                    putExtra("category_path", "")
+                }
                 startActivity(intent)
             }
             R.id.nav_stats -> {
