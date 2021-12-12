@@ -68,7 +68,8 @@
         app:layout_constraintBottom_toBottomOf="@id/tvName"
         app:layout_constraintLeft_toRightOf="@id/tvName"
         android:layout_marginStart="40dp"
-        android:background="@drawable/ic_edit">
+        android:background="@drawable/ic_edit"
+        android:foreground="?android:attr/selectableItemBackground">
 
     </ImageButton>
     
@@ -134,7 +135,8 @@
         app:layout_constraintBottom_toBottomOf="@id/tvCategory"
         app:layout_constraintLeft_toRightOf="@id/tvCategory"
         android:layout_marginStart="40dp"
-        android:background="@drawable/ic_edit">
+        android:background="@drawable/ic_edit"
+        android:foreground="?android:attr/selectableItemBackground">
 
     </ImageButton>
 
@@ -162,6 +164,16 @@
         android:textSize="20sp">
 
     </TextView>
+    <ImageButton
+        android:id="@+id/btnEditQuantity"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:layout_constraintTop_toTopOf="@id/tvQuantity"
+        app:layout_constraintBottom_toBottomOf="@id/tvQuantity"
+        app:layout_constraintLeft_toRightOf="@id/tvQuantity"
+        android:layout_marginStart="40dp"
+        android:background="@drawable/ic_edit"
+        android:foreground="?android:attr/selectableItemBackground"/>
 
     <TextView
         android:id="@+id/tvLastChangedLabel"

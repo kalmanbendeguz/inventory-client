@@ -40,7 +40,7 @@
                         android:id="@+id/toolbarLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tétel kivevése"
+                        android:text="Tétel kivétele"
                         android:textColor="#FFFFFF"
                         style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"/>
 

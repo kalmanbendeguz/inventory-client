@@ -46,7 +46,8 @@
             android:id="@+id/btnInsert"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/ic_baseline_add_box_24">
+            android:background="@drawable/ic_baseline_add_box_24"
+            android:foreground="?attr/selectableItemBackgroundBorderless">
         </ImageButton>
 
         <TextView
@@ -71,7 +72,8 @@
             android:id="@+id/btnTakeOut"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/ic_baseline_indeterminate_check_box_24">
+            android:background="@drawable/ic_baseline_indeterminate_check_box_24"
+            android:foreground="?attr/selectableItemBackgroundBorderless">
         </ImageButton>
 
         <TextView
@@ -96,7 +98,8 @@
             android:id="@+id/btnCheck"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/ic_baseline_fact_check_24">
+            android:background="@drawable/ic_baseline_fact_check_24"
+            android:foreground="?attr/selectableItemBackgroundBorderless">
         </ImageButton>
 
         <TextView

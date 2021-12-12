@@ -3,27 +3,32 @@ package kb.inventory
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.cardview.widget.CardView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import com.android.volley.Response
+import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.material.navigation.NavigationView
+import kb.inventory.data.Item
 import org.json.JSONObject
-import java.nio.charset.Charset
+
 
 class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -75,7 +80,7 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             editServerIPDialog.setPositiveButton("OK") { dialogInterface, i ->
                 val newServerIP = editServerIPInput.text.toString()
 
-                with (sharedPref.edit()) {
+                with(sharedPref.edit()) {
                     putString("server_ip", newServerIP)
                     apply()
                 }
@@ -101,7 +106,7 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             editServerPortDialog.setPositiveButton("OK") { dialogInterface, i ->
                 val newServerPort : Int = editServerPortInput.text.toString().toInt()
 
-                with (sharedPref.edit()) {
+                with(sharedPref.edit()) {
                     putInt("server_port", newServerPort)
                     apply()
                 }
@@ -111,6 +116,84 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
             editServerPortDialog.setNegativeButton("Mégse") { dialogInterface, i -> dialogInterface.cancel() }
             editServerPortDialog.show()
+        }
+
+        val cardEmptyStock : CardView = findViewById(R.id.cardEmptyStock)
+        cardEmptyStock.setOnClickListener {
+            val emptyStockDialog = AlertDialog.Builder(this@SettingsActivity)
+            emptyStockDialog.setTitle("Teljes készlet kiürítése")
+
+            val inflater = this.layoutInflater
+            val securityCode: Int = (1000..9999).random()
+            val dialogView : View = inflater.inflate(R.layout.empty_stock_dialog, null)
+            val tvSecurityCode = dialogView.findViewById<TextView>(R.id.empty_stock_security_code)
+            tvSecurityCode.text = securityCode.toString()
+            val etSecurityCode: EditText = dialogView.findViewById(R.id.etSecurityCode)
+            val url = "http://$currentServerIP:$currentPort/item/empty_all"
+
+            emptyStockDialog.setView(dialogView)
+            emptyStockDialog.setPositiveButton("OK") { dialogInterface, i ->
+                if(etSecurityCode.text.isNotEmpty() && securityCode == etSecurityCode.text.toString().toInt()){
+                    val requestQueue : RequestQueue = Volley.newRequestQueue(this)
+                    val jsonRequest: JsonObjectRequest = JsonObjectRequest(
+                        Request.Method.GET,
+                        url,
+                        null,
+                        {response ->
+                            Toast.makeText(this, "Sikeres készletkiürítés!", Toast.LENGTH_SHORT).show()
+                        },
+                        {error -> }
+                    )
+                    requestQueue.add(jsonRequest)
+
+                } else {
+                    Toast.makeText(this, "Hibás ellenőrzőkód!", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+            emptyStockDialog.setNegativeButton("Mégse") { dialogInterface, i -> dialogInterface.cancel() }
+
+            emptyStockDialog.show()
+
+        }
+
+        val cardDeleteInventory : CardView = findViewById(R.id.cardDeleteInventory)
+        cardDeleteInventory.setOnClickListener {
+            val deleteInventoryDialog = AlertDialog.Builder(this@SettingsActivity)
+            deleteInventoryDialog.setTitle("Raktár alaphelyzetbe állítása")
+
+            val inflater = this.layoutInflater
+            val securityCode: Int = (1000..9999).random()
+            val dialogView : View = inflater.inflate(R.layout.delete_inventory_dialog, null)
+            val tvSecurityCode = dialogView.findViewById<TextView>(R.id.delete_inventory_security_code)
+            tvSecurityCode.text = securityCode.toString()
+            val etSecurityCode: EditText = dialogView.findViewById(R.id.etSecurityCode)
+            val url = "http://$currentServerIP:$currentPort/inventory/reset_inventory"
+
+            deleteInventoryDialog.setView(dialogView)
+            deleteInventoryDialog.setPositiveButton("OK") { dialogInterface, i ->
+                if(etSecurityCode.text.isNotEmpty() && securityCode == etSecurityCode.text.toString().toInt()){
+                    val requestQueue : RequestQueue = Volley.newRequestQueue(this)
+                    val jsonRequest: JsonObjectRequest = JsonObjectRequest(
+                        Request.Method.GET,
+                        url,
+                        null,
+                        {response ->
+                            Toast.makeText(this, "Sikeres alaphelyzetbe állítás!", Toast.LENGTH_SHORT).show()
+                        },
+                        {error -> }
+                    )
+                    requestQueue.add(jsonRequest)
+
+                } else {
+                    Toast.makeText(this, "Hibás ellenőrzőkód!", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+            deleteInventoryDialog.setNegativeButton("Mégse") { dialogInterface, i -> dialogInterface.cancel() }
+
+            deleteInventoryDialog.show()
+
         }
     }
 
@@ -126,7 +209,7 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             }
             R.id.nav_categories -> {
                 val intent = Intent(this, ViewCategoriesActivity::class.java).apply {
-                    putExtra("category_code", "" )
+                    putExtra("category_code", "")
                     putExtra("category_path", "")
                 }
                 startActivity(intent)

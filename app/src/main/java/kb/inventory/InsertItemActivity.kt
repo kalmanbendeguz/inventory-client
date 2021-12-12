@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.text.InputType
 import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.FileProvider
@@ -245,6 +247,58 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 queue.add(stringReq)
 
             }
+
+        }
+
+        val editQuantityButton: Button = findViewById(R.id.btnEditQuantity)
+        editQuantityButton.setOnClickListener {
+            val editQuantityDialog = AlertDialog.Builder(this@InsertItemActivity)
+            editQuantityDialog.setTitle("Készlet beállítása")
+
+            val oldQuantity : String = findViewById<TextView>(R.id.tvExistingQuantity).text.toString()
+
+            val newQuantityInput = EditText(this@InsertItemActivity)
+            newQuantityInput.inputType = InputType.TYPE_CLASS_NUMBER
+            newQuantityInput.setText(oldQuantity)
+
+            editQuantityDialog.setView(newQuantityInput)
+
+            editQuantityDialog.setPositiveButton("OK") { dialogInterface, i ->
+                val newQuantity = newQuantityInput.text.toString()
+
+                if(newQuantity == oldQuantity) {
+                    Toast.makeText(this@InsertItemActivity, "Nem változott!", Toast.LENGTH_SHORT).show()
+                } else {
+                    val queue = Volley.newRequestQueue(this)
+                    val url = "http://$currentServerIP:$currentPort/item/set_quantity"
+
+                    val reqMap: MutableMap<Any?, Any?> = mutableMapOf()
+                    reqMap["code"] = itemCode
+                    reqMap["new_quantity"] = newQuantity.toInt()
+
+                    val reqBody : JSONObject = JSONObject(reqMap)
+
+                    val stringReq : StringRequest =
+                        object : StringRequest(Method.POST, url,
+                            Response.Listener { response ->
+
+                                findViewById<TextView>(R.id.tvExistingQuantity).text = newQuantity
+                                Toast.makeText(this, "Sikeres beállítás", Toast.LENGTH_SHORT).show()
+
+                            },
+                            Response.ErrorListener { error -> }
+                        ){
+                            override fun getBody(): ByteArray {
+                                return reqBody.toString().toByteArray(Charset.defaultCharset())
+                            }
+                        }
+                    queue.add(stringReq)
+                }
+
+            }
+
+            editQuantityDialog.setNegativeButton("Mégse") { dialogInterface, i -> dialogInterface.cancel() }
+            editQuantityDialog.show()
 
         }
 

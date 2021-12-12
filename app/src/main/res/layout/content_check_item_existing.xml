@@ -70,12 +70,23 @@
         android:textSize="20sp">
 
     </TextView>
+
+    <Button
+        android:id="@+id/btnEditQuantity"
+        android:text="Készlet beállítása"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/tvExistingQuantityLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"/>
+
     <TextView
         android:id="@+id/tvNameLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Név:"
-        app:layout_constraintTop_toBottomOf="@id/tvExistingQuantity"
+        app:layout_constraintTop_toBottomOf="@id/btnEditQuantity"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="15dp"
@@ -87,7 +98,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sajt"
-        app:layout_constraintTop_toBottomOf="@id/tvExistingQuantity"
+        app:layout_constraintTop_toBottomOf="@id/btnEditQuantity"
         app:layout_constraintLeft_toRightOf="@id/tvNameLabel"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="5dp"

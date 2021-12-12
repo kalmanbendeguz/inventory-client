@@ -5,24 +5,26 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.android.volley.Request
+import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.material.navigation.NavigationView
 import org.json.JSONArray
 import org.json.JSONObject
+import java.nio.charset.Charset
 
 class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     lateinit var toolbar: Toolbar
@@ -123,6 +125,59 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         }
         if(categoryArray.length() == 0) {
             tvCategory.append(" / ")
+        }
+
+        val editQuantityButton: Button = findViewById(R.id.btnEditQuantity)
+        editQuantityButton.setOnClickListener {
+            val editQuantityDialog = AlertDialog.Builder(this@CheckItemActivity)
+            editQuantityDialog.setTitle("Készlet beállítása")
+
+            val oldQuantity : String = findViewById<TextView>(R.id.tvExistingQuantity).text.toString()
+
+            val newQuantityInput = EditText(this@CheckItemActivity)
+            newQuantityInput.inputType = InputType.TYPE_CLASS_NUMBER
+            newQuantityInput.setText(oldQuantity)
+
+            editQuantityDialog.setView(newQuantityInput)
+
+            editQuantityDialog.setPositiveButton("OK") { dialogInterface, i ->
+                val newQuantity = newQuantityInput.text.toString()
+
+                if(newQuantity == oldQuantity) {
+                    Toast.makeText(this@CheckItemActivity, "Nem változott!", Toast.LENGTH_SHORT).show()
+                } else {
+                    val queue = Volley.newRequestQueue(this)
+                    val url = "http://$currentServerIP:$currentPort/item/set_quantity"
+
+                    val reqMap: MutableMap<Any?, Any?> = mutableMapOf()
+                    reqMap["code"] = itemCode
+                    reqMap["new_quantity"] = newQuantity.toInt()
+
+                    val reqBody : JSONObject = JSONObject(reqMap)
+
+                    val stringReq : StringRequest =
+                        object : StringRequest(
+                            Method.POST, url,
+                            Response.Listener { response ->
+
+                                findViewById<TextView>(R.id.tvExistingQuantity).text = newQuantity
+                                Toast.makeText(this, "Sikeres beállítás", Toast.LENGTH_SHORT).show()
+
+                            },
+                            Response.ErrorListener { error -> }
+                        ){
+                            override fun getBody(): ByteArray {
+                                return reqBody.toString().toByteArray(Charset.defaultCharset())
+                            }
+                        }
+                    queue.add(stringReq)
+                }
+
+            }
+
+            editQuantityDialog.setNegativeButton("Mégse") { dialogInterface, i -> dialogInterface.cancel() }
+            editQuantityDialog.show()
+
         }
     }
 
