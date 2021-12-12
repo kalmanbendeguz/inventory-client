@@ -36,8 +36,6 @@ class CategoryAdapter(var categories: MutableList<Category>, var categoryPath: S
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
 
-
-
         val category = categories[position]
 
         holder.tvSubcategoryName.text = category.name
@@ -53,9 +51,7 @@ class CategoryAdapter(var categories: MutableList<Category>, var categoryPath: S
         })
 
         holder.btnViewCategoryItems.setOnClickListener (View.OnClickListener{ v ->
-            val intent = Intent(v.context, ViewAllItemsActivity::class.java).apply{
-                Log.v("mylog","holder category code")
-                Log.v("mylog",holder.category?.code!!)
+            val intent = Intent(v.context, ViewAllItemsActivity::class.java).apply {
                 putExtra("category_id", holder.category?.code )
             }
             v.context.startActivity(intent)
@@ -70,7 +66,7 @@ class CategoryAdapter(var categories: MutableList<Category>, var categoryPath: S
             val renameCategoryDialog = AlertDialog.Builder(v.context)
             renameCategoryDialog.setTitle("Kategória átnevezése")
 
-            var oldCategoryName = holder.tvSubcategoryName.text.toString()
+            val oldCategoryName = holder.tvSubcategoryName.text.toString()
 
             val newCategoryNameInput = EditText(v.context)
             newCategoryNameInput.inputType = InputType.TYPE_CLASS_TEXT
@@ -79,7 +75,7 @@ class CategoryAdapter(var categories: MutableList<Category>, var categoryPath: S
             renameCategoryDialog.setView(newCategoryNameInput)
 
             renameCategoryDialog.setPositiveButton("OK") { dialogInterface, i ->
-                Log.v("mylog", "ok button")
+
                 val newCategoryName = newCategoryNameInput.text.toString()
 
                 if(oldCategoryName == newCategoryName) {
@@ -88,31 +84,22 @@ class CategoryAdapter(var categories: MutableList<Category>, var categoryPath: S
                     val queue = Volley.newRequestQueue(v.context)
                     val url = "http://$currentServerIP:$currentPort/category/rename"
 
-                    //val requestBody = "code="+ itemCode + "&quantity="
                     val reqMap: MutableMap<Any?, Any?> = mutableMapOf()
                     reqMap["category_id"] = holder.category?.code
                     reqMap["new_name"] = newCategoryName
 
                     val reqBody : JSONObject = JSONObject(reqMap)
 
-                    Log.v("mylog", reqBody.toString())
-                    Log.v("mylog", reqBody.toString().toByteArray(Charset.defaultCharset()).toString())
-
                     val stringReq : StringRequest =
                         object : StringRequest(
                             Method.POST, url,
                             Response.Listener { response ->
-                                // response
-                                var strResp = response.toString()
-                                Log.v("mylog", "RESP:" +"["+strResp+"]")
-                                Log.d("API", strResp)
+
                                 holder.tvSubcategoryName.text = newCategoryName
                                 Toast.makeText(v.context, "Sikeres átnevezés", Toast.LENGTH_SHORT).show()
 
                             },
-                            Response.ErrorListener { error ->
-                                Log.d("API", "error => $error")
-                            }
+                            Response.ErrorListener { error -> }
                         ){
                             override fun getBody(): ByteArray {
                                 return reqBody.toString().toByteArray(Charset.defaultCharset())
@@ -131,10 +118,6 @@ class CategoryAdapter(var categories: MutableList<Category>, var categoryPath: S
     override fun getItemCount(): Int {
         return categories.size
     }
-
-    /*interface ShoppingItemClickListener {
-        fun onItemChanged(item: ShoppingItem)
-    }*/
 
     inner class CategoryViewHolder(categoryView: View) : RecyclerView.ViewHolder(categoryView){
         val tvSubcategoryName: TextView

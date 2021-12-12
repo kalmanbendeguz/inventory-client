@@ -74,8 +74,8 @@ class StatsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 null,
                 { response ->
                     //textView.text = "Response: %s".format(response.toString())
-                    Log.v("mylog", "RESPONSE")
-                    Log.v("mylog", response.toString())
+
+
                     scanResult = response
                     val itemCount = response.getInt("allItemCount")
                     val itemDiversity = response.getInt("itemDiversity")
@@ -111,7 +111,7 @@ class StatsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 updatedDate = Date.from(Instant.parse(updatedAt))
             } else {
-                Log.v("mylog", "BAD API LEVEL")
+
             }
             val quantity: Int = dataPoint.getInt("quantity")
             lineEntry.add(Entry(updatedDate.toInstant().toEpochMilli().toFloat(),quantity.toFloat()))

@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val insertButton: ImageButton = findViewById(R.id.btnInsert)
         insertButton.setOnClickListener {
             lastPressedButton = "insertButton"
-            var intentIntegrator: IntentIntegrator = IntentIntegrator(this)
+            val intentIntegrator: IntentIntegrator = IntentIntegrator(this)
             intentIntegrator.setPrompt("Világítás: hangerő fel gomb")
             intentIntegrator.setBeepEnabled(true)
             intentIntegrator.setOrientationLocked(true)
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val takeOutButton: ImageButton = findViewById(R.id.btnTakeOut)
         takeOutButton.setOnClickListener {
             lastPressedButton = "takeOutButton"
-            var intentIntegrator: IntentIntegrator = IntentIntegrator(this)
+            val intentIntegrator: IntentIntegrator = IntentIntegrator(this)
             intentIntegrator.setPrompt("Világítás: hangerő fel gomb")
             intentIntegrator.setBeepEnabled(true)
             intentIntegrator.setOrientationLocked(true)
@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val checkButton: ImageButton = findViewById(R.id.btnCheck)
         checkButton.setOnClickListener {
             lastPressedButton = "checkButton"
-            var intentIntegrator: IntentIntegrator = IntentIntegrator(this)
+            val intentIntegrator: IntentIntegrator = IntentIntegrator(this)
             intentIntegrator.setPrompt("Világítás: hangerő fel gomb")
             intentIntegrator.setBeepEnabled(true)
             intentIntegrator.setOrientationLocked(true)
@@ -92,16 +92,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        Log.v("mylog", requestCode.toString())
-        Log.v("mylog", resultCode.toString())
         val intentResult: IntentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
-        //Log.v("mylog", intentResult.contents)
         if(intentResult.contents != null){
-            /*var alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
-            alertDialogBuilder.setTitle("Sikerült :)")*/
-            Log.v("mylog", intentResult.contents)
-            /*alertDialogBuilder.setPositiveButton("OK", DialogInterface.OnClickListener())
-            alertDialogBuilder.show()*/
+
             when(lastPressedButton){
                 "insertButton" -> {
                     val intent = Intent(this, InsertItemActivity::class.java).apply {
@@ -124,7 +117,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
         } else {
-            Log.v("mylog", "megszakadt")
+
             Toast.makeText(applicationContext, "Beolvasás megszakítva", Toast.LENGTH_SHORT).show()
         }
     }

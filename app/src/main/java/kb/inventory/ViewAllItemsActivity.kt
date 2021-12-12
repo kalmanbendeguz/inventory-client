@@ -53,7 +53,7 @@ class ViewAllItemsActivity : AppCompatActivity(), NavigationView.OnNavigationIte
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_all_items)
-        Log.v("mylog", "via1")
+
         sharedPref = getSharedPreferences("kb.inventory.settings", Context.MODE_PRIVATE)
 
         currentServerIP = sharedPref.getString("server_ip", "0.0.0.0")!!
@@ -68,6 +68,7 @@ class ViewAllItemsActivity : AppCompatActivity(), NavigationView.OnNavigationIte
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar, 0, 0
         )
+
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         navView.setNavigationItemSelectedListener(this)
@@ -79,8 +80,6 @@ class ViewAllItemsActivity : AppCompatActivity(), NavigationView.OnNavigationIte
         recyclerView = findViewById(R.id.allItemsList)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
-
-
 
         url = "http://$currentServerIP:$currentPort/item/get_all"
 
@@ -125,44 +124,28 @@ class ViewAllItemsActivity : AppCompatActivity(), NavigationView.OnNavigationIte
     }
 
     private fun extractItems() {
-        var requestQueue : RequestQueue = Volley.newRequestQueue(this)
-        var jsonArrayRequest: JsonArrayRequest = JsonArrayRequest(
+        val requestQueue : RequestQueue = Volley.newRequestQueue(this)
+        val jsonArrayRequest: JsonArrayRequest = JsonArrayRequest(
                 Request.Method.GET, // method
                 url, // url
                 null, // json request
                 {response -> // response listener
-                    Log.v("mylog", "fullresponse")
-                    Log.v("mylog", response.toString())
+
                     for (i in 0 until response.length()){
 
                         val itemObject: JSONObject = response.getJSONObject(i)
-                        Log.v("mylog", "respon1s")
-                        Log.v("mylog", itemObject.toString())
-                        var itemName: String = itemObject.getString("name")
-                        var itemCode: String = itemObject.getString("code")
-                        var itemQuantity: Int = itemObject.getInt("quantity")
 
-                        Log.v("mylog", "categoryCode")
-                        Log.v("mylog", itemObject.toString())
-                        //val itemQuantity: Int = itemObject.getInt("quantity")
+                        val itemName: String = itemObject.getString("name")
+                        val itemCode: String = itemObject.getString("code")
+                        val itemQuantity: Int = itemObject.getInt("quantity")
 
-                        //val itemCategoryList: MutableList<String> = mutableListOf()
-
-                        //val itemCategoryArray: JSONArray = itemObject.getJSONArray("categoryStringArray")
-
-                        Log.v("mylog", "for1")
-                        var item: Item = Item(itemCode, itemName, itemQuantity)
+                        val item: Item = Item(itemCode, itemName, itemQuantity)
                         itemsList.add(item)
                         adapter.notifyDataSetChanged()
-                        Log.v("mylog", "end of for")
 
                     }
-                    Log.v("mylog", "after for")
-
                 },
-                {error -> // error listener
-                    Log.v("mylog", error.toString())
-                }
+                {error -> }
         )
 
         requestQueue.add(jsonArrayRequest)
@@ -174,9 +157,7 @@ class ViewAllItemsActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                 val intent = Intent(this, MainActivity::class.java).apply {}
                 startActivity(intent)
             }
-            R.id.nav_all_items -> {
-
-            }
+            R.id.nav_all_items -> {}
             R.id.nav_categories -> {
                 val intent = Intent(this, ViewCategoriesActivity::class.java).apply {
                     putExtra("category_code", "" )

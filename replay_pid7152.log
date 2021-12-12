@@ -421,7 +421,7 @@ instanceKlass com/google/protobuf/Android
 instanceKlass com/google/protobuf/ByteString$ByteIterator
 instanceKlass com/google/protobuf/ByteString$ByteArrayCopier
 instanceKlass com/google/protobuf/ByteString
-instanceKlass com/google/wireless/android/play/playlog/proto/ClientAnalytics$LogEventOrBuilder
+instanceKlass com/google/wireless/android/play/playlog/proto/ClientAnalytics$entOrBuilder
 instanceKlass com/google/wireless/android/sdk/stats/AndroidStudioEvent$EventKind$1
 instanceKlass com/google/wireless/android/sdk/stats/AndroidStudioEvent$EventCategory$1
 instanceKlass com/google/wireless/android/sdk/stats/GradleSyncIssueOrBuilder

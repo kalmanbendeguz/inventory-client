@@ -55,13 +55,11 @@ class SettingsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         toggle.syncState()
         navView.setNavigationItemSelectedListener(this)
 
-
-
         val tvServerIP : TextView = findViewById(R.id.tvServerIP)
         val tvPort: TextView = findViewById(R.id.tvServerPort)
 
         tvServerIP.text = currentServerIP
-        tvPort.text = currentPort.toString()
+        tvPort.text = currentPort
 
         val cardServerIP : CardView = findViewById(R.id.cardServerIP)
         cardServerIP.setOnClickListener {

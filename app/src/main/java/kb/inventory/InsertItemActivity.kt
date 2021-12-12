@@ -3,7 +3,15 @@ package kb.inventory
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -12,6 +20,8 @@ import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.FileProvider
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.android.volley.Request
@@ -20,11 +30,14 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.material.navigation.NavigationView
-import com.google.gson.Gson
-import com.google.gson.JsonArray
+import kb.inventory.thirdparty.UploadUtility
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.IOException
 import java.nio.charset.Charset
+
 
 class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     lateinit var toolbar: Toolbar
@@ -36,16 +49,17 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     lateinit var sharedPref: SharedPreferences
     lateinit var currentServerIP: String
     lateinit var currentPort: String
+    var photoFile: File? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.v("mylog", "oc1")
+
         setContentView(R.layout.activity_insert_item)
         sharedPref = getSharedPreferences("kb.inventory.settings", Context.MODE_PRIVATE)
 
         currentServerIP = sharedPref.getString("server_ip", "0.0.0.0")!!
         currentPort = sharedPref.getInt("server_port", 3000).toString()
-        Log.v("mylog", "oc1")
+
         toolbar = findViewById(R.id.toolbar)
         rootLinearLayout = findViewById(R.id.insertItemLinearLayout)
         setSupportActionBar(toolbar)
@@ -54,48 +68,33 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         navView = findViewById(R.id.nav_view)
         val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar, 0, 0
+                this, drawerLayout, toolbar, 0, 0
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         navView.setNavigationItemSelectedListener(this)
 
-        var intent: Intent = intent
+        val intent: Intent = intent
         itemCode = intent.getStringExtra("itemCode")!!
-        Log.v("mylog", "ITEMCODE")
-        Log.v("mylog", itemCode)
 
-        // Instantiate the RequestQueue.
         val mQueue = Volley.newRequestQueue(this)
         val url = "http://$currentServerIP:$currentPort/item/info?code=$itemCode"
 
-        // Request a string response from the provided URL.
         val jsonObjectRequest = JsonObjectRequest(
-            Request.Method.GET,
-            url,
-            null,
-            { response ->
-                //textView.text = "Response: %s".format(response.toString())
-                Log.v("mylog", "RESPONSE")
-                Log.v("mylog", response.toString())
-                if (response.toString() == "{}") {
-                    Log.v("mylog", "insertNew")
-                    insertNew()
-                } else {
-                    Log.v("mylog", "insertExisting")
-                    scanResult = response
-                    Log.v("mylog", "insertExisting1")
-                    insertExisting()
-
-
-                }
-            },
-            { error ->
-                // TODO: Handle error
-            }
+                Request.Method.GET,
+                url,
+                null,
+                { response ->
+                    if (response.toString() == "{}") {
+                        insertNew()
+                    } else {
+                        scanResult = response
+                        insertExisting()
+                    }
+                },
+                { error -> }
         )
 
-        // Add the request to the RequestQueue.
         mQueue.add(jsonObjectRequest)
     }
 
@@ -111,7 +110,6 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         val cancelButton: Button = findViewById(R.id.btnCancel)
         cancelButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {
-                //putExtra("itemCode", intentResult.contents )
             }
             startActivity(intent)
         }
@@ -132,6 +130,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             if(quantityEditText.text.isEmpty()){
                 Toast.makeText(this, "Add meg a mennyiséget!", Toast.LENGTH_SHORT).show()
             } else {
+
                 val queue = Volley.newRequestQueue(this)
                 val url = "http://$currentServerIP:$currentPort/item/insert_new"
 
@@ -144,31 +143,31 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 var categoryArray: List<String> = categoryEditText.text.toString().split("/").map { it.trim() }
                 categoryArray = categoryArray.filter{!it.isEmpty()}
                 reqMap["quantity"] = quantityEditText.text.toString().toInt()
+                var imageStr: String? = null
+
                 if(!categoryArray.isEmpty()){
                     reqMap["category"] = categoryArray
                 } else {
                     reqMap["category"] = "[]"
                 }
 
-
                 val reqBody : JSONObject = JSONObject(reqMap)
-                Log.v("mylog", reqBody.toString())
+
                 val stringReq : StringRequest =
                     object : StringRequest(Method.POST, url,
-                        Response.Listener { response ->
-                            // response
-                            var strResp = response.toString()
-                            Log.v("mylog", "RESP:" +"["+strResp+"]")
-                            Log.d("API", strResp)
-                            Toast.makeText(this, "Sikeres bevitel", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this, MainActivity::class.java).apply {
-                                //putExtra("itemCode", intentResult.contents )
-                            }
-                            startActivity(intent)
-                        },
-                        Response.ErrorListener { error ->
-                            Log.d("API", "error => $error")
-                        }
+                            Response.Listener { response ->
+
+                                Toast.makeText(this, "Sikeres bevitel", Toast.LENGTH_SHORT).show()
+
+                                if(photoFile != null) {
+                                    UploadUtility(this, "http://$currentServerIP:$currentPort/item/upload_image", photoFile!!).uploadFile() // Either Uri, File or String file path
+                                }
+
+                                val intent = Intent(this, MainActivity::class.java).apply {
+                                }
+                                startActivity(intent)
+                            },
+                            Response.ErrorListener { error -> }
                     ){
                         override fun getBody(): ByteArray {
                             return reqBody.toString().toByteArray()
@@ -179,6 +178,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             }
 
         }
+
     }
 
     private fun insertExisting() {
@@ -190,13 +190,9 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         val cancelButton: Button = findViewById(R.id.btnCancel)
         cancelButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                //putExtra("itemCode", intentResult.contents )
-            }
+            val intent = Intent(this, MainActivity::class.java).apply {}
             startActivity(intent)
         }
-
-        Log.v("mylog", "there")
 
         val okButton: Button = findViewById(R.id.btnOk)
 
@@ -213,7 +209,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         val tvCategory :  TextView = findViewById(R.id.tvCategory)
         for (i in 0 until categoryArray.length()){
 
-            tvCategory.append(" / "+categoryArray[i].toString())
+            tvCategory.append(" / " + categoryArray[i].toString())
         }
         if(categoryArray.length() == 0) {
             tvCategory.append(" / ")
@@ -227,31 +223,20 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 val queue = Volley.newRequestQueue(this)
                 val url = "http://$currentServerIP:$currentPort/item/insert_existing"
 
-                //val requestBody = "code="+ itemCode + "&quantity="
                 val reqMap: MutableMap<Any?, Any?> = mutableMapOf()
                 reqMap["code"] = itemCode
                 reqMap["quantity"] = quantityEditText.text.toString().toInt()
                 val reqBody : JSONObject = JSONObject(reqMap)
 
-                Log.v("mylog", reqBody.toString())
-                Log.v("mylog", reqBody.toString().toByteArray(Charset.defaultCharset()).toString())
-
                 val stringReq : StringRequest =
                     object : StringRequest(Method.POST, url,
-                        Response.Listener { response ->
-                            // response
-                            var strResp = response.toString()
-                            Log.v("mylog", "RESP:" +"["+strResp+"]")
-                            Log.d("API", strResp)
-                            Toast.makeText(this, "Sikeres bevitel", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this, MainActivity::class.java).apply {
-                                //putExtra("itemCode", intentResult.contents )
-                            }
-                            startActivity(intent)
-                        },
-                        Response.ErrorListener { error ->
-                            Log.d("API", "error => $error")
-                        }
+                            Response.Listener { response ->
+                                Toast.makeText(this, "Sikeres bevitel", Toast.LENGTH_SHORT).show()
+                                val intent = Intent(this, MainActivity::class.java).apply {
+                                }
+                                startActivity(intent)
+                            },
+                            Response.ErrorListener { error -> }
                     ){
                         override fun getBody(): ByteArray {
                             return reqBody.toString().toByteArray(Charset.defaultCharset())
@@ -265,8 +250,6 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
     }
 
-
-
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_landing -> {
@@ -279,7 +262,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             }
             R.id.nav_categories -> {
                 val intent = Intent(this, ViewCategoriesActivity::class.java).apply {
-                    putExtra("category_code", "" )
+                    putExtra("category_code", "")
                     putExtra("category_path", "")
                 }
                 startActivity(intent)

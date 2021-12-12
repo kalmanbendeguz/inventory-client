@@ -36,7 +36,7 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     lateinit var currentPort: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.v("mylog","activity indul")
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_check_item)
 
@@ -45,12 +45,10 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         currentServerIP = sharedPref.getString("server_ip", "0.0.0.0")!!
         currentPort = sharedPref.getInt("server_port", 3000).toString()
 
-        Log.v("mylog","oncreate1")
         toolbar = findViewById(R.id.toolbar)
         rootLinearLayout = findViewById(R.id.checkItemLinearLayout)
         setSupportActionBar(toolbar)
 
-        Log.v("mylog","oncreate2")
         drawerLayout = findViewById(R.id.drawer_layout)
 
         navView = findViewById(R.id.nav_view)
@@ -61,49 +59,32 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         navView.setNavigationItemSelectedListener(this)
-        Log.v("mylog","oncreate3")
-        var intent: Intent = intent
-        itemCode = intent.getStringExtra("itemCode")!!
-        Log.v("mylog", "ITEMCODE")
-        Log.v("mylog", itemCode)
 
-        // Instantiate the RequestQueue.
+        val intent: Intent = intent
+        itemCode = intent.getStringExtra("itemCode")!!
+
         val mQueue = Volley.newRequestQueue(this)
         val url = "http://$currentServerIP:$currentPort/item/info?code=$itemCode"
 
-        // Request a string response from the provided URL.
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.GET,
             url,
             null,
             { response ->
-                //textView.text = "Response: %s".format(response.toString())
-                Log.v("mylog", "RESPONSE")
-                Log.v("mylog", response.toString())
                 if (response.toString() == "{}") {
-                    Log.v("mylog", "insertNew")
                     checkNotExisting()
                 } else {
-                    Log.v("mylog", "insertExisting")
                     scanResult = response
-                    Log.v("mylog", "insertExisting1")
-
                     checkExisting()
-
-
                 }
             },
-            { error ->
-                // TODO: Handle error
-            }
+            { error -> }
         )
 
-        // Add the request to the RequestQueue.
         mQueue.add(jsonObjectRequest)
     }
 
     private fun checkExisting() {
-        Log.v("mylog", "checkExisting ")
 
         val checkExistingView: View = LayoutInflater
             .from(this)
@@ -113,9 +94,7 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
         val okButton: Button = findViewById(R.id.btnOk)
         okButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                //putExtra("itemCode", intentResult.contents )
-            }
+            val intent = Intent(this, MainActivity::class.java).apply {}
             startActivity(intent)
         }
 
@@ -126,8 +105,6 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             }
             startActivity(intent)
         }
-
-
 
         val tvCode : TextView = findViewById(R.id.tvCode)
         tvCode.text = scanResult.getString("code")
@@ -155,15 +132,11 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             .inflate(R.layout.content_check_item_not_existing, rootLinearLayout, false)
         rootLinearLayout.addView(checkNonExistingItem)
 
-
         val okButton: Button = findViewById(R.id.btnOk)
         okButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                //putExtra("itemCode", intentResult.contents )
-            }
+            val intent = Intent(this, MainActivity::class.java).apply {}
             startActivity(intent)
         }
-
 
         val tvCode : TextView = findViewById(R.id.tvCode)
         tvCode.text = itemCode
@@ -182,7 +155,7 @@ class CheckItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             }
             R.id.nav_categories -> {
                 val intent = Intent(this, ViewCategoriesActivity::class.java).apply {
-                    putExtra("category_code", "" )
+                    putExtra("category_code", "")
                     putExtra("category_path", "")
                 }
                 startActivity(intent)

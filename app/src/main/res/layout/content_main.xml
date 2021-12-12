@@ -75,7 +75,7 @@
         </ImageButton>
 
         <TextView
-            android:text="Kivevés"
+            android:text="Kivétel"
             android:textStyle="bold"
             android:textSize="40sp"
             android:textColor="@color/black"

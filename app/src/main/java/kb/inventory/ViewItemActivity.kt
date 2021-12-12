@@ -3,8 +3,11 @@ package kb.inventory
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.text.InputType
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -14,10 +17,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.GravityCompat
-import androidx.core.view.marginStart
-import androidx.core.view.updateLayoutParams
 import androidx.drawerlayout.widget.DrawerLayout
 import com.android.volley.Request
 import com.android.volley.Response
@@ -49,12 +50,11 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         currentServerIP = sharedPref.getString("server_ip", "0.0.0.0")!!
         currentPort = sharedPref.getInt("server_port", 3000).toString()
-        Log.v("mylog", "oncreate1")
+
         toolbar = findViewById(R.id.toolbar)
         rootLinearLayout = findViewById(R.id.viewItemLinearLayout)
         setSupportActionBar(toolbar)
 
-        Log.v("mylog", "oncreate2")
         drawerLayout = findViewById(R.id.drawer_layout)
 
         navView = findViewById(R.id.nav_view)
@@ -65,12 +65,9 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         navView.setNavigationItemSelectedListener(this)
-        Log.v("mylog", "oncreate3")
-        var intent: Intent = intent
-        itemCode = intent.getStringExtra("itemCode")!!
-        Log.v("mylog", "ITEMCODE")
-        Log.v("mylog", itemCode)
 
+        val intent: Intent = intent
+        itemCode = intent.getStringExtra("itemCode")!!
 
         val editNameButton: ImageButton = findViewById(R.id.btnEditName)
         editNameButton.setOnClickListener {
@@ -94,30 +91,21 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                     val queue = Volley.newRequestQueue(this)
                     val url = "http://$currentServerIP:$currentPort/item/rename"
 
-                    //val requestBody = "code="+ itemCode + "&quantity="
                     val reqMap: MutableMap<Any?, Any?> = mutableMapOf()
                     reqMap["code"] = itemCode
                     reqMap["new_name"] = newName
 
                     val reqBody : JSONObject = JSONObject(reqMap)
 
-                    Log.v("mylog", reqBody.toString())
-                    Log.v("mylog", reqBody.toString().toByteArray(Charset.defaultCharset()).toString())
-
                     val stringReq : StringRequest =
                             object : StringRequest(Method.POST, url,
                                     Response.Listener { response ->
-                                        // response
-                                        var strResp = response.toString()
-                                        Log.v("mylog", "RESP:" +"["+strResp+"]")
-                                        Log.d("API", strResp)
+
                                         findViewById<TextView>(R.id.tvName).text = newName
                                         Toast.makeText(this, "Sikeres átnevezés", Toast.LENGTH_SHORT).show()
 
                                     },
-                                    Response.ErrorListener { error ->
-                                        Log.d("API", "error => $error")
-                                    }
+                                    Response.ErrorListener { error -> }
                             ){
                                 override fun getBody(): ByteArray {
                                     return reqBody.toString().toByteArray(Charset.defaultCharset())
@@ -133,15 +121,12 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         }
 
-
-        /////
-
         val editCategoryButton: ImageButton = findViewById(R.id.btnEditCategory)
         editCategoryButton.setOnClickListener {
             val editCategoryDialog = AlertDialog.Builder(this@ViewItemActivity)
             editCategoryDialog.setTitle("Kategóriaváltás")
 
-            var oldCategoryString = findViewById<TextView>(R.id.tvCategory).text.toString()
+            val oldCategoryString = findViewById<TextView>(R.id.tvCategory).text.toString()
             var oldCategoryArray: List<String> = oldCategoryString.split("/").map { it.trim() }
             oldCategoryArray = oldCategoryArray.filter{!it.isEmpty()}
 
@@ -152,7 +137,7 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             editCategoryDialog.setView(newCategoryInput)
 
             editCategoryDialog.setPositiveButton("OK") { dialogInterface, i ->
-                Log.v("mylog", "ok button")
+
                 val newCategoryString = newCategoryInput.text.toString()
                 var newCategoryArray: List<String> = newCategoryString.split("/").map { it.trim() }
                 newCategoryArray = newCategoryArray.filter{!it.isEmpty()}
@@ -163,7 +148,6 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                     val queue = Volley.newRequestQueue(this)
                     val url = "http://$currentServerIP:$currentPort/item/change_category"
 
-                    //val requestBody = "code="+ itemCode + "&quantity="
                     val reqMap: MutableMap<Any?, Any?> = mutableMapOf()
                     reqMap["code"] = itemCode
                     if(!newCategoryArray.isEmpty()){
@@ -174,23 +158,13 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
                     val reqBody : JSONObject = JSONObject(reqMap)
 
-                    Log.v("mylog", reqBody.toString())
-                    Log.v("mylog", reqBody.toString().toByteArray(Charset.defaultCharset()).toString())
-
                     val stringReq : StringRequest =
                             object : StringRequest(Method.POST, url,
                                     Response.Listener { response ->
-                                        // response
-                                        var strResp = response.toString()
-                                        Log.v("mylog", "RESP:" +"["+strResp+"]")
-                                        Log.d("API", strResp)
                                         findViewById<TextView>(R.id.tvCategory).text = newCategoryString
                                         Toast.makeText(this, "Sikeres kategóriaváltás", Toast.LENGTH_SHORT).show()
-
                                     },
-                                    Response.ErrorListener { error ->
-                                        Log.d("API", "error => $error")
-                                    }
+                                    Response.ErrorListener { error -> }
                             ){
                                 override fun getBody(): ByteArray {
                                     return reqBody.toString().toByteArray(Charset.defaultCharset())
@@ -206,51 +180,32 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         }
 
-        /////
-
-        /*val datasheetButton: Button = findViewById(R.id.btnDatasheet)
-        datasheetButton.setOnClickListener {
-            val intent = Intent(this, ViewItemActivity::class.java).apply {
-                putExtra("itemCode", itemCode)
-            }
-            startActivity(intent)
-        }*/
-
-        // Instantiate the RequestQueue.
         val mQueue = Volley.newRequestQueue(this)
         val url = "http://$currentServerIP:$currentPort/item/info?code=$itemCode"
 
-        // Request a string response from the provided URL.
         val jsonObjectRequest = JsonObjectRequest(
                 Request.Method.GET,
                 url,
                 null,
                 { response ->
-                    //textView.text = "Response: %s".format(response.toString())
                     scanResult = response
                     viewItem()
                 },
-                { error ->
-                    // TODO: Handle error
-                }
+                { error -> }
         )
 
-        // Add the request to the RequestQueue.
         mQueue.add(jsonObjectRequest)
-
-
     }
 
     private fun viewItem() {
-        Log.v("mylog", "viewItem")
 
         val viewItemView: View = LayoutInflater
             .from(this)
             .inflate(R.layout.content_view_item, rootLinearLayout, false)
         rootLinearLayout.addView(viewItemView)
 
-
         val tvName : TextView = findViewById(R.id.tvName)
+
         tvName.text = scanResult.getString("name")
 
         val tvCode : TextView = findViewById(R.id.tvCode)
@@ -258,22 +213,20 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val categoryArray : JSONArray = scanResult.getJSONArray("categoryStringArray")
         val tvCategory : TextView = findViewById(R.id.tvCategory)
-        for (i in 0 until categoryArray.length()){
 
+        for (i in 0 until categoryArray.length()){
             tvCategory.append(" / " + categoryArray[i].toString())
         }
+
         if(categoryArray.length() == 0) {
             tvCategory.append(" / ")
         }
 
         val tvQuantity : TextView = findViewById(R.id.tvQuantity)
         tvQuantity.text = scanResult.getString("quantity")
-        Log.v("mylog", "viewItem1")
+
         val tvLastChanged : TextView = findViewById(R.id.tvLastChanged)
-        Log.v("mylog", "viewItem3")
-        //Log.v("mylog", scanResult.toString())
         tvLastChanged.text = scanResult.getString("lastChanged")
-        Log.v("mylog", "viewItem2")
 
     }
 
@@ -289,7 +242,7 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             }
             R.id.nav_categories -> {
                 val intent = Intent(this, ViewCategoriesActivity::class.java).apply {
-                    putExtra("category_code", "" )
+                    putExtra("category_code", "")
                     putExtra("category_path", "")
                 }
                 startActivity(intent)

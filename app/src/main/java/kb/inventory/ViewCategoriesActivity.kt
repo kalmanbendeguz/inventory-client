@@ -52,7 +52,7 @@ class ViewCategoriesActivity : AppCompatActivity(), NavigationView.OnNavigationI
     lateinit var currentPort: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.v("mylog", "viewcategories oncreate")
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_categories)
         sharedPref = getSharedPreferences("kb.inventory.settings", Context.MODE_PRIVATE)
@@ -68,13 +68,14 @@ class ViewCategoriesActivity : AppCompatActivity(), NavigationView.OnNavigationI
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar, 0, 0
         )
+
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         navView.setNavigationItemSelectedListener(this)
 
         categoriesList = mutableListOf()
 
-        var tvParentCategory: TextView = findViewById(R.id.tvParentCategory)
+        val tvParentCategory: TextView = findViewById(R.id.tvParentCategory)
         if(intent.getStringExtra("category_path")!!.isEmpty()) {
             tvParentCategory.text = "/"
         } else {
@@ -82,7 +83,7 @@ class ViewCategoriesActivity : AppCompatActivity(), NavigationView.OnNavigationI
         }
 
         adapter = CategoryAdapter(categoriesList, intent.getStringExtra("category_path")!!)
-        Log.v("mylog", "viewcategories")
+
         recyclerView = findViewById(R.id.categoriesList)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
@@ -92,8 +93,7 @@ class ViewCategoriesActivity : AppCompatActivity(), NavigationView.OnNavigationI
         if(currentCategoryCode.isEmpty()){
             url = "http://$currentServerIP:$currentPort/category/get_subcategories"
         }
-        //url = "http://$currentServerIP:$currentPort/category/get_subcategories?parent_category=6179e29491f511fe16bb19e5"
-        Log.v("mylog", "oncreate before extract")
+
         extractCategories()
 
         val fab : FloatingActionButton = findViewById(R.id.fab)
@@ -115,35 +115,23 @@ class ViewCategoriesActivity : AppCompatActivity(), NavigationView.OnNavigationI
                     val queue = Volley.newRequestQueue(this)
                     val url = "http://$currentServerIP:$currentPort/category/new"
 
-                    //val requestBody = "code="+ itemCode + "&quantity="
                     val reqMap: MutableMap<Any?, Any?> = mutableMapOf()
                     if(!currentCategoryCode.isEmpty()){
                         reqMap["parent_category_id"] = currentCategoryCode
                     }
+
                     reqMap["name"] = newCategory
-
                     val reqBody : JSONObject = JSONObject(reqMap)
-
-                    Log.v("mylog", reqBody.toString())
-                    Log.v("mylog", reqBody.toString().toByteArray(Charset.defaultCharset()).toString())
 
                     val stringReq : StringRequest =
                             object : StringRequest(Method.POST, url,
                                     Response.Listener { response ->
-                                        // response
-                                        var strResp = response.toString()
-                                        Log.v("mylog", "RESP:" +"["+strResp+"]")
-                                        Log.d("API", strResp)
-                                        //findViewById<TextView>(R.id.tvName).text = newName
                                         categoriesList.clear()
                                         extractCategories()
                                         adapter.notifyDataSetChanged()
                                         Toast.makeText(this, "Kategória létrehozva", Toast.LENGTH_SHORT).show()
-
                                     },
-                                    Response.ErrorListener { error ->
-                                        Log.d("mylog", "error => $error")
-                                    }
+                                    Response.ErrorListener { error -> }
                             ){
                                 override fun getBody(): ByteArray {
                                     return reqBody.toString().toByteArray(Charset.defaultCharset())
@@ -161,45 +149,26 @@ class ViewCategoriesActivity : AppCompatActivity(), NavigationView.OnNavigationI
     }
 
     private fun extractCategories() {
-        Log.v("mylog", "url")
-        Log.v("mylog", url)
-        var requestQueue : RequestQueue = Volley.newRequestQueue(this)
-        var jsonArrayRequest: JsonArrayRequest = JsonArrayRequest(
-            Request.Method.GET, // method
-            url, // url
-            null, // json request
-            {response -> // response listener
-                Log.v("mylog", "fullresponse")
-                Log.v("mylog", response.toString())
+
+        val requestQueue : RequestQueue = Volley.newRequestQueue(this)
+        val jsonArrayRequest: JsonArrayRequest = JsonArrayRequest(
+            Request.Method.GET,
+            url,
+            null,
+            {response ->
                 for (i in 0 until response.length()){
-
                     val categoryObject: JSONObject = response.getJSONObject(i)
-                    Log.v("mylog", "respons")
-                    Log.v("mylog", categoryObject.toString())
-                    var categoryName: String = categoryObject.getString("name")
-                    var categoryCode: String = categoryObject.getString("_id")
 
-                    Log.v("mylog", "categoryCode")
-                    Log.v("mylog", categoryObject.toString())
-                    //val itemQuantity: Int = itemObject.getInt("quantity")
+                    val categoryName: String = categoryObject.getString("name")
+                    val categoryCode: String = categoryObject.getString("_id")
 
-                    //val itemCategoryList: MutableList<String> = mutableListOf()
-
-                    //val itemCategoryArray: JSONArray = itemObject.getJSONArray("categoryStringArray")
-
-                    Log.v("mylog", "for1")
-                    var category: Category = Category(categoryName, categoryCode)
+                    val category: Category = Category(categoryName, categoryCode)
                     categoriesList.add(category)
                     adapter.notifyDataSetChanged()
-                    Log.v("mylog", "end of for")
-
                 }
-                Log.v("mylog", "after for")
 
             },
-            {error -> // error listener
-                Log.v("mylog", error.toString())
-            }
+            {error -> }
         )
 
         requestQueue.add(jsonArrayRequest)

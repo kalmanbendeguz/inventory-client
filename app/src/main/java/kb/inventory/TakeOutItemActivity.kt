@@ -37,7 +37,7 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
     lateinit var currentPort: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.v("mylog","activity indul")
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_take_out_item)
         sharedPref = getSharedPreferences("kb.inventory.settings", Context.MODE_PRIVATE)
@@ -58,54 +58,42 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
         toggle.syncState()
         navView.setNavigationItemSelectedListener(this)
 
-        var intent: Intent = intent
+        val intent: Intent = intent
         itemCode = intent.getStringExtra("itemCode")!!
-        Log.v("mylog", "ITEMCODE")
-        Log.v("mylog", itemCode)
 
-        // Instantiate the RequestQueue.
         val mQueue = Volley.newRequestQueue(this)
         val url = "http://$currentServerIP:$currentPort/item/info?code=$itemCode"
 
-        // Request a string response from the provided URL.
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.GET,
             url,
             null,
             { response ->
-                //textView.text = "Response: %s".format(response.toString())
-                Log.v("mylog", "RESPONSE")
-                Log.v("mylog", response.toString())
+
                 if (response.toString() == "{}") {
-                    Log.v("mylog", "insertNew")
                     takeOutNonExisting()
                 } else {
-                    Log.v("mylog", "insertExisting")
-                    scanResult = response
-                    Log.v("mylog", "insertExisting1")
 
-                    var itemQuantity = scanResult.getInt("quantity")
+                    scanResult = response
+
+
+                    val itemQuantity = scanResult.getInt("quantity")
                     if(itemQuantity == 0){
                         takeOutExistingZeroCount()
                     } else {
                         takeOutExistingNonZeroCount()
                     }
 
-
-
                 }
             },
-            { error ->
-                // TODO: Handle error
-            }
+            { error -> }
         )
 
-        // Add the request to the RequestQueue.
         mQueue.add(jsonObjectRequest)
     }
 
     private fun takeOutExistingNonZeroCount() {
-        Log.v("mylog", "takeoutExistingNonzero count")
+
         val takeOutExistingItemNNot0View: View = LayoutInflater
             .from(this)
             .inflate(R.layout.content_take_out_existing_item_n_not_0, rootLinearLayout, false)
@@ -114,13 +102,9 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
 
         val cancelButton: Button = findViewById(R.id.btnCancel)
         cancelButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                //putExtra("itemCode", intentResult.contents )
-            }
+            val intent = Intent(this, MainActivity::class.java).apply {}
             startActivity(intent)
         }
-
-        Log.v("mylog", "there")
 
         val okButton: Button = findViewById(R.id.btnOk)
 
@@ -142,7 +126,7 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
         if(categoryArray.length() == 0) {
             tvCategory.append(" / ")
         }
-        Log.v("mylog", "there1")
+
         okButton.setOnClickListener {
             val quantityEditText : EditText = findViewById(R.id.etTakeOutQuantity)
             if(quantityEditText.text.isEmpty()){
@@ -151,7 +135,6 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                 val queue = Volley.newRequestQueue(this)
                 val url = "http://$currentServerIP:$currentPort/item/take_out"
 
-                //val requestBody = "code="+ itemCode + "&quantity="
                 val reqMap: MutableMap<Any?, Any?> = mutableMapOf()
                 reqMap["code"] = itemCode
                 reqMap["quantity"] = quantityEditText.text.toString().toInt()
@@ -162,25 +145,14 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                 }
                 val reqBody : JSONObject = JSONObject(reqMap)
 
-                Log.v("mylog", reqBody.toString())
-                Log.v("mylog", reqBody.toString().toByteArray(Charset.defaultCharset()).toString())
-
                 val stringReq : StringRequest =
                     object : StringRequest(Method.POST, url,
                         Response.Listener { response ->
-                            // response
-                            var strResp = response.toString()
-                            Log.v("mylog", "RESP:" +"["+strResp+"]")
-                            Log.d("API", strResp)
                             Toast.makeText(this, "Sikeres kivétel", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this, MainActivity::class.java).apply {
-                                //putExtra("itemCode", intentResult.contents )
-                            }
+                            val intent = Intent(this, MainActivity::class.java).apply {}
                             startActivity(intent)
                         },
-                        Response.ErrorListener { error ->
-                            Log.d("API", "error => $error")
-                        }
+                        Response.ErrorListener { error -> }
                     ){
                         override fun getBody(): ByteArray {
                             return reqBody.toString().toByteArray(Charset.defaultCharset())
@@ -194,7 +166,7 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
     }
 
     private fun takeOutExistingZeroCount() {
-        Log.v("mylog", "takeoutExisting zero count")
+
 
         val takeOutExistingItemNIs0View: View = LayoutInflater
             .from(this)
@@ -204,13 +176,9 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
 
         val okButton: Button = findViewById(R.id.btnOk)
         okButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                //putExtra("itemCode", intentResult.contents )
-            }
+            val intent = Intent(this, MainActivity::class.java).apply {}
             startActivity(intent)
         }
-
-
 
         val tvCode : TextView = findViewById(R.id.tvCode)
         tvCode.text = scanResult.getString("code")
@@ -234,7 +202,6 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
     }
 
     private fun takeOutNonExisting() {
-        Log.v("mylog", "takeout NON Existing")
 
         val takeOutNonExistingItem: View = LayoutInflater
             .from(this)
@@ -244,13 +211,9 @@ class TakeOutItemActivity : AppCompatActivity(), NavigationView.OnNavigationItem
 
         val okButton: Button = findViewById(R.id.btnOk)
         okButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                //putExtra("itemCode", intentResult.contents )
-            }
+            val intent = Intent(this, MainActivity::class.java).apply {}
             startActivity(intent)
         }
-
-
 
         val tvCode : TextView = findViewById(R.id.tvCode)
         tvCode.text = itemCode

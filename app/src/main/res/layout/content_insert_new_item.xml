@@ -1,3 +1,6 @@
+<ScrollView android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent">
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -21,12 +24,38 @@
 
     </TextView>
 
+    <!--ImageView
+        android:id="@+id/imgItemImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/tvScanResult"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/noimage"
+        android:scaleType="centerInside"
+        android:adjustViewBounds="true"
+        /-->
+
+    <!--Button
+        android:id="@+id/btnTakeImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kép készítése"
+        app:layout_constraintTop_toBottomOf="@id/imgItemImage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"
+        android:textSize="20sp"/-->
+
     <TextView
         android:id="@+id/tvCodeLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Kód:"
-        app:layout_constraintTop_toBottomOf="@id/tvScanResult"
+        app:layout_constraintTop_toBottomOf="@+id/tvScanResult"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="15dp"
@@ -38,7 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="123456"
-        app:layout_constraintTop_toBottomOf="@id/tvScanResult"
+        app:layout_constraintTop_toBottomOf="@+id/tvScanResult"
         app:layout_constraintLeft_toRightOf="@id/tvCodeLabel"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="5dp"
@@ -115,8 +144,12 @@
         app:layout_constraintTop_toTopOf="@id/tvCategoryLabel"
         app:layout_constraintBottom_toBottomOf="@id/tvCategoryLabel"
         app:layout_constraintLeft_toRightOf="@id/tvCategoryLabel"
-        android:layout_marginLeft="5dp"
-        android:textSize="20sp">
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
+        android:textSize="20sp"
+        android:maxLines="4"
+        app:layout_constrainedWidth="true">
 
     </EditText>
 
@@ -171,3 +204,4 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
