@@ -110,8 +110,10 @@ class ViewAllItemsActivity : AppCompatActivity(), NavigationView.OnNavigationIte
                 if(search.isEmpty()) {
                     Toast.makeText(this@ViewAllItemsActivity, "Nem lehet üres!", Toast.LENGTH_SHORT).show()
                 } else {
+
                     adapter.items = itemsList.filter {
-                        it.name == search
+                        Regex.fromLiteral(it.name.toUpperCase()).containsMatchIn(search.toUpperCase()) || Regex.fromLiteral(search.toUpperCase()).containsMatchIn(it.name.toUpperCase())
+                        //it.name.toUpperCase() == search
                     } as MutableList<Item>
                     adapter.notifyDataSetChanged()
                 }

@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
-import android.media.Image
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.InputType
@@ -157,12 +156,12 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
                             Toast.makeText(this, "Sikeres bevitel", Toast.LENGTH_SHORT).show()
 
-                            if(imageCaptured) {
+                            if (imageCaptured) {
                                 try {
                                     val requestQueue = Volley.newRequestQueue(this)
                                     val URL = "http://$currentServerIP:$currentPort/item/save_image"
                                     val jsonBody = JSONObject()
-                                    val itemImageView : ImageView = findViewById(R.id.itemImage)
+                                    val itemImageView: ImageView = findViewById(R.id.itemImage)
                                     val imageString = encodeImage(itemImageView.drawable.toBitmap())
                                     jsonBody.put("code", itemCode)
                                     jsonBody.put("image", imageString)
@@ -170,13 +169,14 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                                     val stringRequest: StringRequest = object : StringRequest(
                                         Method.POST, URL,
                                         Response.Listener { response ->
-                                            Log.i(
-                                                "VOLLEY",
-                                                response!!
-                                            )
-                                            Toast.makeText(this, "Sikeres képfeltöltés", Toast.LENGTH_SHORT).show()
-                                            val intent = Intent(this, MainActivity::class.java).apply {
-                                            }
+                                            Toast.makeText(
+                                                this,
+                                                "Sikeres képfeltöltés",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            val intent =
+                                                Intent(this, MainActivity::class.java).apply {
+                                                }
                                             startActivity(intent)
                                         },
                                         Response.ErrorListener { error ->
