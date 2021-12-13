@@ -3,7 +3,6 @@ package kb.inventory
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.text.InputType
@@ -17,7 +16,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.android.volley.Request
@@ -59,7 +57,7 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         navView = findViewById(R.id.nav_view)
         val toggle = ActionBarDrawerToggle(
-                this, drawerLayout, toolbar, 0, 0
+            this, drawerLayout, toolbar, 0, 0
         )
 
         drawerLayout.addDrawerListener(toggle)
@@ -99,13 +97,17 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
                     val stringReq : StringRequest =
                             object : StringRequest(Method.POST, url,
-                                    Response.Listener { response ->
+                                Response.Listener { response ->
 
-                                        findViewById<TextView>(R.id.tvName).text = newName
-                                        Toast.makeText(this, "Sikeres átnevezés", Toast.LENGTH_SHORT).show()
+                                    findViewById<TextView>(R.id.tvName).text = newName
+                                    Toast.makeText(
+                                        this,
+                                        "Sikeres átnevezés",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
 
-                                    },
-                                    Response.ErrorListener { error -> }
+                                },
+                                Response.ErrorListener { error -> }
                             ){
                                 override fun getBody(): ByteArray {
                                     return reqBody.toString().toByteArray(Charset.defaultCharset())
@@ -160,11 +162,15 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
                     val stringReq : StringRequest =
                             object : StringRequest(Method.POST, url,
-                                    Response.Listener { response ->
-                                        findViewById<TextView>(R.id.tvCategory).text = newCategoryString
-                                        Toast.makeText(this, "Sikeres kategóriaváltás", Toast.LENGTH_SHORT).show()
-                                    },
-                                    Response.ErrorListener { error -> }
+                                Response.Listener { response ->
+                                    findViewById<TextView>(R.id.tvCategory).text = newCategoryString
+                                    Toast.makeText(
+                                        this,
+                                        "Sikeres kategóriaváltás",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                },
+                                Response.ErrorListener { error -> }
                             ){
                                 override fun getBody(): ByteArray {
                                     return reqBody.toString().toByteArray(Charset.defaultCharset())
@@ -236,21 +242,20 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val url = "http://$currentServerIP:$currentPort/item/info?code=$itemCode"
 
         val jsonObjectRequest = JsonObjectRequest(
-                Request.Method.GET,
-                url,
-                null,
-                { response ->
-                    scanResult = response
-                    viewItem()
-                },
-                { error -> }
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                scanResult = response
+                viewItem()
+            },
+            { error -> }
         )
 
         mQueue.add(jsonObjectRequest)
     }
 
     private fun viewItem() {
-
         val viewItemView: View = LayoutInflater
             .from(this)
             .inflate(R.layout.content_view_item, rootLinearLayout, false)
@@ -280,6 +285,28 @@ class ViewItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val tvLastChanged : TextView = findViewById(R.id.tvLastChanged)
         tvLastChanged.text = scanResult.getString("lastChanged")
 
+        val itemImageView : ImageView = findViewById(R.id.itemImage)
+        val mQueue = Volley.newRequestQueue(this)
+        val url = "http://$currentServerIP:$currentPort/item/image?item_code=$itemCode"
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                if (response.toString() != "{}") {
+                    val base64Image: String = response.getString("image")
+                    val decodedString = Base64.decode(base64Image, Base64.DEFAULT)
+                    val decodedByte =
+                        BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+                    itemImageView.setImageBitmap(decodedByte)
+                    itemImageView.invalidate()
+                }
+            },
+            { error ->
+            }
+        )
+
+        mQueue.add(jsonObjectRequest)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {

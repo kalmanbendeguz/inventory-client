@@ -1,15 +1,12 @@
 package kb.inventory
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.media.ExifInterface
-import android.net.Uri
+import android.media.Image
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.text.InputType
 import android.util.Base64
@@ -22,22 +19,20 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import com.android.volley.Request
-import com.android.volley.Response
+import com.android.volley.*
+import com.android.volley.toolbox.HttpHeaderParser
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.material.navigation.NavigationView
-import kb.inventory.thirdparty.UploadUtility
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.IOException
+import java.io.UnsupportedEncodingException
 import java.nio.charset.Charset
 
 
@@ -51,7 +46,9 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     lateinit var sharedPref: SharedPreferences
     lateinit var currentServerIP: String
     lateinit var currentPort: String
-    var photoFile: File? = null
+    val REQUEST_IMAGE_CAPTURE = 1
+    var imageCaptured = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +67,7 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         navView = findViewById(R.id.nav_view)
         val toggle = ActionBarDrawerToggle(
-                this, drawerLayout, toolbar, 0, 0
+            this, drawerLayout, toolbar, 0, 0
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
@@ -83,18 +80,18 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         val url = "http://$currentServerIP:$currentPort/item/info?code=$itemCode"
 
         val jsonObjectRequest = JsonObjectRequest(
-                Request.Method.GET,
-                url,
-                null,
-                { response ->
-                    if (response.toString() == "{}") {
-                        insertNew()
-                    } else {
-                        scanResult = response
-                        insertExisting()
-                    }
-                },
-                { error -> }
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                if (response.toString() == "{}") {
+                    insertNew()
+                } else {
+                    scanResult = response
+                    insertExisting()
+                }
+            },
+            { error -> }
         )
 
         mQueue.add(jsonObjectRequest)
@@ -145,7 +142,6 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 var categoryArray: List<String> = categoryEditText.text.toString().split("/").map { it.trim() }
                 categoryArray = categoryArray.filter{!it.isEmpty()}
                 reqMap["quantity"] = quantityEditText.text.toString().toInt()
-                var imageStr: String? = null
 
                 if(!categoryArray.isEmpty()){
                     reqMap["category"] = categoryArray
@@ -157,19 +153,81 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
                 val stringReq : StringRequest =
                     object : StringRequest(Method.POST, url,
-                            Response.Listener { response ->
+                        Response.Listener { response ->
 
-                                Toast.makeText(this, "Sikeres bevitel", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Sikeres bevitel", Toast.LENGTH_SHORT).show()
 
-                                if(photoFile != null) {
-                                    UploadUtility(this, "http://$currentServerIP:$currentPort/item/upload_image", photoFile!!).uploadFile() // Either Uri, File or String file path
+                            if(imageCaptured) {
+                                try {
+                                    val requestQueue = Volley.newRequestQueue(this)
+                                    val URL = "http://$currentServerIP:$currentPort/item/save_image"
+                                    val jsonBody = JSONObject()
+                                    val itemImageView : ImageView = findViewById(R.id.itemImage)
+                                    val imageString = encodeImage(itemImageView.drawable.toBitmap())
+                                    jsonBody.put("code", itemCode)
+                                    jsonBody.put("image", imageString)
+                                    val requestBody = jsonBody.toString()
+                                    val stringRequest: StringRequest = object : StringRequest(
+                                        Method.POST, URL,
+                                        Response.Listener { response ->
+                                            Log.i(
+                                                "VOLLEY",
+                                                response!!
+                                            )
+                                            Toast.makeText(this, "Sikeres képfeltöltés", Toast.LENGTH_SHORT).show()
+                                            val intent = Intent(this, MainActivity::class.java).apply {
+                                            }
+                                            startActivity(intent)
+                                        },
+                                        Response.ErrorListener { error ->
+                                            Log.e(
+                                                "VOLLEY",
+                                                error.toString()
+                                            )
+                                        }) {
+                                        override fun getBodyContentType(): String {
+                                            return "application/json; charset=utf-8"
+                                        }
+
+                                        @Throws(AuthFailureError::class)
+                                        override fun getBody(): ByteArray {
+                                            return try {
+                                                if (requestBody == null) null else requestBody.toByteArray(
+                                                    charset("utf-8")
+                                                )
+                                            } catch (uee: UnsupportedEncodingException) {
+                                                VolleyLog.wtf(
+                                                    "Unsupported Encoding while trying to get the bytes of %s using %s",
+                                                    requestBody,
+                                                    "utf-8"
+                                                )
+                                                null
+                                            }!!
+                                        }
+
+                                        override fun parseNetworkResponse(response: NetworkResponse): Response<String> {
+                                            var responseString = ""
+                                            if (response != null) {
+                                                responseString = response.statusCode.toString()
+                                                // can get more details such as response.headers
+                                            }
+                                            return Response.success(
+                                                responseString,
+                                                HttpHeaderParser.parseCacheHeaders(response)
+                                            )
+                                        }
+                                    }
+                                    requestQueue.add(stringRequest)
+                                } catch (e: JSONException) {
+                                    e.printStackTrace()
                                 }
-
+                            } else {
                                 val intent = Intent(this, MainActivity::class.java).apply {
                                 }
                                 startActivity(intent)
-                            },
-                            Response.ErrorListener { error -> }
+                            }
+                        },
+                        Response.ErrorListener { error -> }
                     ){
                         override fun getBody(): ByteArray {
                             return reqBody.toString().toByteArray()
@@ -179,6 +237,16 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
             }
 
+        }
+
+        val itemImage : ImageView = findViewById(R.id.itemImage)
+        itemImage.setOnClickListener {
+            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            try {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+            } catch (e: ActivityNotFoundException) {
+                // display error state to the user
+            }
         }
 
     }
@@ -232,13 +300,14 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
                 val stringReq : StringRequest =
                     object : StringRequest(Method.POST, url,
-                            Response.Listener { response ->
-                                Toast.makeText(this, "Sikeres bevitel", Toast.LENGTH_SHORT).show()
-                                val intent = Intent(this, MainActivity::class.java).apply {
-                                }
-                                startActivity(intent)
-                            },
-                            Response.ErrorListener { error -> }
+                        Response.Listener { response ->
+                            Toast.makeText(this, "Sikeres bevitel", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this, MainActivity::class.java).apply {
+                            }
+                            startActivity(intent)
+
+                        },
+                        Response.ErrorListener { error -> }
                     ){
                         override fun getBody(): ByteArray {
                             return reqBody.toString().toByteArray(Charset.defaultCharset())
@@ -332,5 +401,22 @@ class InsertItemActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            val imageBitmap = data!!.extras!!.get("data") as Bitmap
+            val itemImage : ImageView = findViewById(R.id.itemImage)
+            itemImage.setImageBitmap(imageBitmap)
+            imageCaptured = true
+        }
+    }
+
+    private fun encodeImage(bm: Bitmap): String? {
+        val baos = ByteArrayOutputStream()
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val b = baos.toByteArray()
+        return Base64.encodeToString(b, Base64.DEFAULT)
     }
 }
